@@ -1,0 +1,43 @@
+# Her sabah ücretsiz otomatik güncelleme (Claude kullanmaz).
+# 05:00 UTC = kışın 06:00, yazın 07:00 Almanya saati. GitHub zamanlamayı birkaç dakika geciktirebilir.
+name: Günlük güncelleme
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: daily
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Şirket listesi (ayda bir)
+        run: |
+          if [ "$(date -u +%d)" = "01" ]; then
+            pip install --quiet pandas lxml
+            python scripts/build_universe.py
+          fi
+      - name: Sektör sıralaması
+        run: python scripts/update_sectors.py
+      - name: Haber taraması
+        run: python scripts/fetch_news.py
+      - name: Fiyatlar
+        run: python scripts/update_prices.py
+      - name: Kaydet ve yükle
+        run: |
+          for f in data/*.json; do python -m json.tool "$f" > /dev/null; done
+          git config user.name "radar-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet && echo "değişiklik yok" && exit 0
+          git commit -m "Otomatik güncelleme $(date -u +%F)"
+          git pull --rebase --quiet
+          git push
