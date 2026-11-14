@@ -10,7 +10,7 @@ UI languages: Turkish, German, English (`i18n.js`). Visitors can only change the
 - `data/sectors.json`: 11 sectors ranked by 3-month return of a US and a European sector ETF; top 10 are `active` (`scripts/update_sectors.py`).
 - `data/insights.json`: news items. Two kinds:
   - automatic (`"auto": true`): written daily by `scripts/fetch_news.py` with keyword rules, headline/summary in the source language,
-    `why`/`risk` come from category templates in `i18n.js`. Kept 14 days.
+    `why`/`risk` come from category templates in `i18n.js`. Kept 7 days. The scan runs 6 times a day (see the workflow).
   - Claude analysis (`"ai": true`): written weekly by the Claude routine below. Kept 60 days.
 - `data/prices.json`: 6-month closes for every ticker in insights (`scripts/update_prices.py`).
 

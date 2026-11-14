@@ -15,7 +15,7 @@ HOURS = 48          # bu kadar saatten eski haberler alınmaz
 BIG_MOVE = 5.0      # bu yüzdeden fazla hareket eden hisse, olay türü olmasa da kaydedilir
 MAX_PER_TICKER = 2
 MAX_NEW = 250       # günde en fazla bu kadar yeni kayıt
-KEEP_AUTO_DAYS = 14
+KEEP_AUTO_DAYS = 7
 KEEP_AI_DAYS = 60
 
 # (kategori, kalıp, ağırlık) — ilk eşleşen kategori kullanılır, sıra önemlidir.
