@@ -1,38 +1,46 @@
 {
-  "updated": "2026-11-14",
-  "note": "Örnek veri. Günlük görev bu dosyayı güncel haberlerle yeniden yazar.",
-  "items": [
+ "updated": "2026-11-14",
+ "note": "Örnek veri. Günlük görev bu dosyayı güncel haberlerle yeniden yazar.",
+ "items": [
+  {
+   "ticker": "NVDA",
+   "name": "NVIDIA",
+   "market": "US",
+   "type": "stock",
+   "signal": "bullish",
+   "category": "Geri alım",
+   "date": "2026-09-28",
+   "headline": "Yönetim kurulu 150 milyar $ ek hisse geri alımını onayladı",
+   "summary": "Kalan geri alım yetkisi 235 milyar $'a çıktı (mali yıl 2028'e kadar).",
+   "why": "Geri alımlar genelde yönetimin hisseyi ucuz bulduğunun işareti sayılır ve dolaşımdaki hisse sayısını azaltır.",
+   "risk": "Yetki, fiilen o kadar alım yapılacağı anlamına gelmez; hızın artması gerekir. Değerleme endişeleri sürüyor.",
+   "sources": [
     {
-      "ticker": "NVDA",
-      "name": "NVIDIA",
-      "market": "US",
-      "type": "stock",
-      "signal": "bullish",
-      "category": "Geri alım",
-      "date": "2026-09-28",
-      "headline": "Yönetim kurulu 150 milyar $ ek hisse geri alımını onayladı",
-      "summary": "Kalan geri alım yetkisi 235 milyar $'a çıktı (mali yıl 2028'e kadar).",
-      "why": "Geri alımlar genelde yönetimin hisseyi ucuz bulduğunun işareti sayılır ve dolaşımdaki hisse sayısını azaltır.",
-      "risk": "Yetki, fiilen o kadar alım yapılacağı anlamına gelmez; hızın artması gerekir. Değerleme endişeleri sürüyor.",
-      "sources": [
-        {"title": "MarketBeat – NVIDIA geri alım", "url": "https://www.marketbeat.com/instant-alerts/price-nvidia-nasdaq-nvda-shares-climb-17-still-a-buy-2026-09-28/"}
-      ]
-    },
-    {
-      "ticker": "NVDA",
-      "name": "NVIDIA",
-      "market": "US",
-      "type": "stock",
-      "signal": "watch",
-      "category": "Anlaşma",
-      "date": "2026-10-26",
-      "headline": "Anthropic'in Amazon ve Alphabet ile ~224,5 milyar $ iptal edilemez bilgi işlem anlaşması açıklandı",
-      "summary": "Yapay zekâ altyapı talebinin sürdüğünü gösteriyor; NVIDIA için dolaylı sipariş fırsatı olabilir.",
-      "why": "Büyük bulut sağlayıcıların uzun vadeli kapasite taahhütleri çip talebini destekleyebilir.",
-      "risk": "Zamanlama ve hangi çiplerin kullanılacağı belirsiz; Amazon ve Google kendi çiplerini de kullanıyor.",
-      "sources": [
-        {"title": "MarketBeat – NVDA haftalık gelişmeler", "url": "https://www.marketbeat.com/instant-alerts/price-nvidia-nasdaq-nvda-stock-price-up-24-whats-next-2026-10-26/"}
-      ]
+     "title": "MarketBeat – NVIDIA geri alım",
+     "url": "https://www.marketbeat.com/instant-alerts/price-nvidia-nasdaq-nvda-shares-climb-17-still-a-buy-2026-09-28/"
     }
-  ]
+   ],
+   "sector": "tech"
+  },
+  {
+   "ticker": "NVDA",
+   "name": "NVIDIA",
+   "market": "US",
+   "type": "stock",
+   "signal": "watch",
+   "category": "Anlaşma",
+   "date": "2026-10-26",
+   "headline": "Anthropic'in Amazon ve Alphabet ile ~224,5 milyar $ iptal edilemez bilgi işlem anlaşması açıklandı",
+   "summary": "Yapay zekâ altyapı talebinin sürdüğünü gösteriyor; NVIDIA için dolaylı sipariş fırsatı olabilir.",
+   "why": "Büyük bulut sağlayıcıların uzun vadeli kapasite taahhütleri çip talebini destekleyebilir.",
+   "risk": "Zamanlama ve hangi çiplerin kullanılacağı belirsiz; Amazon ve Google kendi çiplerini de kullanıyor.",
+   "sources": [
+    {
+     "title": "MarketBeat – NVDA haftalık gelişmeler",
+     "url": "https://www.marketbeat.com/instant-alerts/price-nvidia-nasdaq-nvda-stock-price-up-24-whats-next-2026-10-26/"
+    }
+   ],
+   "sector": "tech"
+  }
+ ]
 }

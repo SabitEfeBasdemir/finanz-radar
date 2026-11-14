@@ -1,15 +1,22 @@
 const $=s=>document.querySelector(s);
 const SIG={bullish:'Yükseliş',watch:'İzle',bearish:'Düşüş riski'};
-let items=[],prices={};
+let items=[],prices={},sectors=[],sec='';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const safeUrl=u=>/^https?:\/\//.test(u)?u:'#';
 async function load(){
   const [i,p]=await Promise.all([fetch('data/insights.json').then(r=>r.json()),fetch('data/prices.json').then(r=>r.json()).catch(()=>({tickers:{}}))]);
+  sectors=await fetch('data/sectors.json').then(r=>r.json()).then(d=>d.sectors||[]).catch(()=>[]);
   items=(i.items||[]).sort((a,b)=>(b.date||'').localeCompare(a.date||''));prices=p.tickers||{};
   $('#upd').textContent='Son güncelleme: '+(i.updated||'—')+(i.note?' · '+i.note:'');
   const cats=[...new Set(items.map(x=>x.category).filter(Boolean))].sort();
   $('#fc').innerHTML='<option value="">Tüm kategoriler</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');
-  render();
+  renderSectors();render();
+}
+const secName=k=>(sectors.find(s=>s.key===k)||{}).name||k||'';
+function renderSectors(){
+  const pct=v=>v==null?'—':(v>0?'+':'')+v+'%';
+  $('#sec').innerHTML=sectors.length?'<div class="sh">Sektörler · son 3 ay (ABD+Avrupa fonları) · ilk 10 taranıyor</div><div class="chips">'+sectors.map(s=>{const n=items.filter(x=>x.sector===s.key).length;
+    return `<button class="chip${s.key===sec?' on':''}${s.active?'':' off'}" data-k="${esc(s.key)}"><span>${s.rank}. ${esc(s.name)}</span><b class="${(s.score||0)>=0?'up':'dn'}">${pct(s.score)}</b><i>${n} haber</i></button>`}).join('')+'</div>':'';
 }
 function chart(h){
   if(!h||h.length<2)return '<div class="nm">Fiyat verisi henüz yok.</div>';
@@ -26,16 +33,17 @@ function stats(h){
 }
 function render(){
   const q=$('#q').value.toLowerCase(),fs=$('#fs').value,fm=$('#fm').value,ft=$('#ft').value,fc=$('#fc').value;
-  const out=items.filter(x=>(!fs||x.signal===fs)&&(!fm||x.market===fm)&&(!ft||x.type===ft)&&(!fc||x.category===fc)&&(!q||(x.ticker+' '+x.name).toLowerCase().includes(q)));
+  const out=items.filter(x=>(!fs||x.signal===fs)&&(!fm||x.market===fm)&&(!ft||x.type===ft)&&(!fc||x.category===fc)&&(!sec||x.sector===sec)&&(!q||(x.ticker+' '+x.name+' '+secName(x.sector)).toLowerCase().includes(q)));
   $('#list').innerHTML=out.length?out.map((x,n)=>{
     const h=(prices[x.ticker]||{}).history;
     return `<div class="card" data-n="${n}"><div class="top"><div><span class="tk">${esc(x.ticker)}</span> <span class="nm">${esc(x.name)} · ${esc(x.market)} · ${x.type==='fund'?'Fon':'Hisse'}</span></div><span class="tag s-${esc(x.signal)}">${SIG[x.signal]||esc(x.signal)}</span></div>
-    <div class="hl">${esc(x.headline)}</div><div class="nm">${esc(x.category)} · ${esc(x.date)}</div>
+    <div class="hl">${esc(x.headline)}</div><div class="nm">${x.sector?esc(secName(x.sector))+' · ':''}${esc(x.category)} · ${esc(x.date)}</div>
     <div class="det"><p>${esc(x.summary)}</p><h4>Neden önemli</h4><p>${esc(x.why)}</p><h4>Risk</h4><p>${esc(x.risk)}</p>
     <h4>Grafik</h4><div class="chart">${chart(h)}${stats(h)}</div>
     <h4>Kaynaklar</h4>${(x.sources||[]).map(s=>`<a href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener">${esc(s.title)}</a>`).join('')}</div></div>`}).join(''):'<div class="empty">Sonuç yok.</div>';
 }
 $('#list').addEventListener('click',e=>{if(e.target.closest('a'))return;const c=e.target.closest('.card');if(c)c.classList.toggle('open')});
+$('#sec').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;sec=sec===b.dataset.k?'':b.dataset.k;renderSectors();render()});
 ['#q','#fs','#fm','#ft','#fc'].forEach(s=>$(s).addEventListener('input',render));
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 load();
