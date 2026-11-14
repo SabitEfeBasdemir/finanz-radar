@@ -1,9 +1,21 @@
-# Her sabah ücretsiz otomatik güncelleme (Claude kullanmaz).
-# 05:00 UTC = kışın 06:00, yazın 07:00 Almanya saati. GitHub zamanlamayı birkaç dakika geciktirebilir.
+# Gün içinde birkaç kez ücretsiz otomatik güncelleme (Claude kullanmaz).
+# Saatler UTC; Almanya saati kışın +1, yazın +2. GitHub zamanlamayı 5–15 dk geciktirebilir.
+#   05:00 UTC  -> 06:00  sabah özeti (gece ABD kapanışı + Asya)
+#   09:30 UTC  -> 10:30  Avrupa açılışından sonra
+#   12:30 UTC  -> 13:30  öğlen, ABD öncesi şirket açıklamaları
+#   15:00 UTC  -> 16:00  ABD açılışından (15:30) sonra
+#   18:00 UTC  -> 19:00  akşam, Avrupa kapanışı
+#   21:30 UTC  -> 22:30  ABD kapanışı ve kapanış sonrası bilançolar
+# Hafta sonu sadece sabah ve akşam.
 name: Günlük güncelleme
 on:
   schedule:
     - cron: "0 5 * * *"
+    - cron: "30 9 * * 1-5"
+    - cron: "30 12 * * 1-5"
+    - cron: "0 15 * * 1-5"
+    - cron: "0 18 * * *"
+    - cron: "30 21 * * 1-5"
   workflow_dispatch: {}
 permissions:
   contents: write
