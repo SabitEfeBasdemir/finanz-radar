@@ -111,6 +111,11 @@ def main():
     path = root / "data/insights.json"
     data = json.loads(path.read_text()) if path.exists() else {"items": []}
     seen = {s.get("url") for i in data.get("items", []) for s in i.get("sources", [])}
+    # Aynı gün aynı şirket için zaten kayıt varsa (önceki çalıştırma) toplam MAX_PER_TICKER'ı aşma.
+    per_day = {}
+    for i in data.get("items", []):
+        if i.get("auto"):
+            per_day[(i["ticker"], i.get("date"))] = per_day.get((i["ticker"], i.get("date")), 0) + 1
     cand = []
     for sym, items in feeds.items():
         c, m = comp[sym], mv.get(sym)
@@ -129,7 +134,10 @@ def main():
                 continue
             score = w + (abs(m) if m is not None else 0)
             picked.append((score, cat or "move", n))
-        for score, cat, n in sorted(picked, key=lambda p: -p[0])[:MAX_PER_TICKER]:
+        for score, cat, n in sorted(picked, key=lambda p: -p[0]):
+            if per_day.get((sym, n["date"]), 0) >= MAX_PER_TICKER:
+                continue
+            per_day[(sym, n["date"])] = per_day.get((sym, n["date"]), 0) + 1
             seen.add(n["url"])
             host = urllib.parse.urlparse(n["url"]).netloc.replace("www.", "")
             cand.append((score, {
