@@ -11,7 +11,7 @@ let lang = (() => {
 })();
 
 // Uygulama durumu
-let items = [], prices = {}, sectors = [], updated = '';
+let items = [], prices = {}, sectors = [], updated = '', potential = [], potNotes = {};
 const F = { q: '', signal: '', market: '', source: '', type: '', category: '', sector: '' };
 const PAGE = 40;
 let shown = PAGE, view = [];
@@ -40,13 +40,17 @@ function dayLabel(d) {
 // ---------- Veri ----------
 async function load() {
   $('#list').innerHTML = Array.from({ length: 4 }, () => '<div class="card skel"><div></div><div></div><div></div></div>').join('');
+  let pot, notes;
   const [i, p, s] = await Promise.all([
     fetch('data/insights.json').then(r => r.json()),
     fetch('data/prices.json').then(r => r.json()).catch(() => ({ tickers: {} })),
     fetch('data/sectors.json').then(r => r.json()).catch(() => ({ sectors: [] })),
-  ]);
+    fetch('data/potential.json').then(r => r.json()).catch(() => ({ companies: [] })),
+    fetch('data/potential_notes.json').then(r => r.json()).catch(() => ({ notes: {} })),
+  ]).then(r => { [, , , pot, notes] = r; return r; });
   items = (i.items || []).sort((a, b) => (b.date || '').localeCompare(a.date || '') || (!!b.ai - !!a.ai) || Math.abs(b.move || 0) - Math.abs(a.move || 0));
   prices = p.tickers || {}; sectors = s.sectors || []; updated = i.updated || '';
+  potential = pot.companies || []; potNotes = notes.notes || {};
   applyLang();
 }
 
@@ -83,7 +87,62 @@ function applyLang() {
   renderAll();
 }
 
-function renderAll() { renderControls(); renderMood(); renderSectors(); renderFeatured(); render(); }
+function renderAll() { renderControls(); renderPotential(); renderMood(); renderSectors(); renderFeatured(); render(); }
+
+// ---------- Potansiyeli olan şirketler ----------
+function miniSpark(v) {
+  if (!v || v.length < 3) return '';
+  const mn = Math.min(...v), mx = Math.max(...v), W = 72, H = 26;
+  const pts = v.map((y, i) => `${(i * W / (v.length - 1)).toFixed(1)},${(H - 2 - (y - mn) / ((mx - mn) || 1) * (H - 4)).toFixed(1)}`).join(' ');
+  return `<svg class="spark ${v.at(-1) >= v[0] ? 'up' : 'dn'}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts}"/></svg>`;
+}
+const eur = v => v.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const sizeTag = r => r.index === 'S&P 600' ? T().small : r.index === 'S&P 400' ? T().mid : '';
+function renderPotential() {
+  const t = T();
+  $('#potTitle').textContent = t.potTitle; $('#potSub').textContent = t.potSub;
+  const list = potential.filter(r => !F.market || r.market === F.market);
+  $('#potBlock').hidden = !list.length;
+  if (!list.length) return;
+  $('#pot').innerHTML = list.map(r => {
+    const note = potNotes[r.ticker], first = (r.points[lang] || r.points.tr || [])[0] || '';
+    return `<article class="pcard" data-pot="${esc(r.ticker)}" tabindex="0">
+      <div class="fc-top">${avatar(r)}<div class="who"><b>${esc(r.ticker)}</b><span>${esc(r.name)}</span></div>${miniSpark(r.spark)}</div>
+      <div class="p-price"><b>${eur(r.eur)}</b>${r.m1 != null ? `<span class="mv ${r.m1 >= 0 ? 'up' : 'dn'}">${pct(r.m1)} <i>${esc(t.m1)}</i></span>` : ''}</div>
+      <p>${esc(first.replace(/^[^:]+:\s*/, ''))}</p>
+      <div class="meta">${(r.cats || []).slice(0, 2).map(c => `<span class="pill">${esc(catName(c))}</span>`).join('')}
+        ${sizeTag(r) ? `<span class="pill ghost">${esc(sizeTag(r))}</span>` : ''}
+        ${note ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>Claude</span>` : ''}</div>
+    </article>`;
+  }).join('');
+}
+let potOpen = null;
+function openPotential(tk) {
+  const r = potential.find(x => x.ticker === tk); if (!r) return;
+  potOpen = tk;
+  const t = T(), note = potNotes[tk], pts = r.points[lang] || r.points.tr || [];
+  const related = items.filter(x => x.ticker === tk).slice(0, 6);
+  detailItem = { ticker: tk, date: r.lead_date };
+  $('#sheetBody').innerHTML = `
+    <div class="grab"></div>
+    <div class="d-head">${avatar(r)}<div class="who"><b>${esc(tk)}</b><span>${esc(r.name)} · ${esc(t[r.market] || r.market || '')}${r.index ? ' · ' + esc(r.index) : ''}</span></div>
+      <button class="icon-btn" id="closeSheet" aria-label="${esc(t.close)}"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="meta" style="margin-top:12px"><span class="pill rocket"><svg class="ic"><use href="#i-rocket"/></svg>${esc(t.potTitle)}</span>
+      ${sizeTag(r) ? `<span class="pill ghost">${esc(sizeTag(r))}</span>` : ''}<span class="pill ghost">${esc(secName(r.sector))}</span></div>
+    <div class="stats" style="margin-top:12px">
+      <div class="stat"><span>€</span><b>${eur(r.eur)}</b></div>
+      <div class="stat"><span>${esc(t.m1)}</span><b class="${(r.m1 ?? 0) >= 0 ? 'up' : 'dn'}">${pct(r.m1)}</b></div>
+      <div class="stat"><span>${esc(t.m3)}</span><b class="${(r.m3 ?? 0) >= 0 ? 'up' : 'dn'}">${pct(r.m3)}</b></div></div>
+    <div class="panel potwhy"><h4>${esc(t.potWhy)}</h4><ul>${pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+    ${note ? `<div class="panel prec"><h4>${esc(t.potNote)}</h4>${L(note.text) ? `<p>${esc(L(note.text))}</p>` : ''}${L(note.precedent) ? `<p style="margin-top:8px">${esc(L(note.precedent))}</p>` : ''}
+      ${(note.sources || []).length ? `<div class="srcs" style="margin-top:10px">${note.sources.map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>` : ''}</div>` : ''}
+    <div class="panel chart" id="cx"><div class="cx-loading"></div></div>
+    <div id="cxStats"></div>
+    ${related.length ? `<h4 class="src-h">${esc(t.potNews)}</h4><div class="rel">${related.map(card).join('')}</div>` : ''}
+    <p class="h-note" style="margin-top:14px">${esc(t.potRisk)}</p>`;
+  const d = $('#sheet'); if (!d.open) d.showModal(); $('#sheetBody').scrollTop = 0;
+  mountChart(detailItem);
+}
 
 function renderControls() {
   const t = T();
@@ -237,9 +296,10 @@ function renderDetail() {
     <div class="srcs">${(x.sources || []).map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>`;
 }
 function openDetail(id) {
+  potOpen = null;
   detailItem = items.find(x => itemKey(x) === id); if (!detailItem) return;
   renderDetail(); mountChart(detailItem);
-  const d = $('#sheet'); d.showModal(); d.scrollTop = 0; $('#sheetBody').scrollTop = 0;
+  const d = $('#sheet'); if (!d.open) d.showModal(); d.scrollTop = 0; $('#sheetBody').scrollTop = 0;
 }
 
 // ---------- Filtre penceresi ----------
@@ -264,6 +324,7 @@ function reset() { Object.keys(F).forEach(k => F[k] = ''); $('#q').value = ''; $
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-k]');
   if (b && !b.closest('#fsheet')) { setF(b.dataset.k, b.dataset.v); return; }
+  const pc = e.target.closest('.pcard'); if (pc) { openPotential(pc.dataset.pot); return; }
   const c = e.target.closest('.card, .fcard');
   if (c) { openDetail(c.dataset.id); return; }
   if (e.target.closest('#more')) { shown += PAGE; render(); return; }
@@ -271,11 +332,12 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.matches('.card, .fcard')) openDetail(e.target.dataset.id);
+  if (e.key === 'Enter' && e.target.matches('.pcard')) openPotential(e.target.dataset.pot);
 });
 $('#lang').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   lang = b.dataset.v; store.set('lang', lang); applyLang();
-  if ($('#sheet').open) { renderDetail(); mountChart(detailItem); }
+  if ($('#sheet').open) { if (potOpen) openPotential(potOpen); else { renderDetail(); mountChart(detailItem); } }
 });
 let qt;
 $('#q').addEventListener('input', e => {

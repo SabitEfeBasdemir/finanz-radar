@@ -275,3 +275,23 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .cx-stats b { color: var(--tx); font-variant-numeric: tabular-nums }
 .cx-stats b.up { color: var(--up) } .cx-stats b.dn { color: var(--dn) }
 .cx-hint { margin: 8px 0 0; color: var(--mut); font-size: 11.5px }
+
+/* Potansiyeli olan şirketler */
+.pot { margin-top: 10px }
+.ic.rk { color: #f59e0b }
+.pcard { flex: 0 0 min(280px, 78%); scroll-snap-align: start; cursor: pointer; display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: var(--radius);
+  background: linear-gradient(155deg, color-mix(in srgb, #f59e0b 16%, var(--card)), var(--card) 62%); border: 1px solid color-mix(in srgb, #f59e0b 38%, var(--line)); box-shadow: var(--shadow); transition: transform .12s }
+.pcard:active { transform: scale(.98) }
+.pcard .fc-top .spark { margin-left: auto }
+.p-price { display: flex; align-items: baseline; gap: 10px }
+.p-price b { font-size: 20px; letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.p-price i { font-style: normal; color: var(--mut); font-weight: 600; font-size: 11px }
+.pcard p { margin: 0; font-size: 13px; color: var(--tx); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden }
+.pcard .meta { margin-top: auto }
+.pill.rocket { background: color-mix(in srgb, #f59e0b 16%, transparent); color: #f5b13d }
+.pill.rocket .ic { width: 13px; height: 13px }
+.potwhy { border-left: 3px solid #f59e0b }
+.potwhy ul { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px }
+.potwhy li { overflow-wrap: anywhere }
+.rel { display: flex; flex-direction: column; gap: 8px }
+.rel .card { box-shadow: none }

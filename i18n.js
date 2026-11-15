@@ -195,6 +195,18 @@ Object.assign(I18N.de, {
   moveToday: 'Tagesbewegung', range: { m1: '1M', m3: '3M', m6: '6M' }, loading: 'Wird geladen…',
   sectorsTitle: 'Sektoren', sectorsSub: 'Rendite 3 Monate · Fonds USA + Europa',
 });
+Object.assign(I18N.tr, {
+  potTitle: 'Potansiyeli olan şirketler', potSub: '10–40 € arası, destekleyici haberleri olan küçük şirketler · her taramada güncellenir',
+  potWhy: 'Neden listede?', potNote: 'Claude notu: benzer örnekler', potNews: 'İlgili haberler', small: 'Küçük şirket', mid: 'Orta ölçek',
+  potRisk: 'Küçük şirketler çok oynak olabilir; iyi haber her zaman yükseliş demek değildir. Bu liste kurallarla otomatik seçilir, yatırım tavsiyesi değildir.',
+  m1: '1 ay', m3: '3 ay', score: 'Puan',
+});
+Object.assign(I18N.en, {
+  potTitle: 'Companies with potential', potSub: 'Small companies at €10–40 with supportive news · updated every scan',
+  potWhy: 'Why on the list?', potNote: 'Claude note: similar cases', potNews: 'Related news', small: 'Small cap', mid: 'Mid cap',
+  potRisk: 'Small companies can be very volatile; good news does not always mean gains. This list is picked automatically by rules and is not investment advice.',
+  m1: '1 month', m3: '3 months', score: 'Score',
+});
 Object.assign(I18N.en, {
   all: 'All', filters: 'Filters', clear: 'Reset', apply: 'Show', close: 'Close',
   featured: 'Claude analysis', featuredSub: 'The week’s most important events, explained',

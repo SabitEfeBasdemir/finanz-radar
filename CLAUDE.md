@@ -53,3 +53,25 @@ The daily free update runs in GitHub Actions (`.github/workflows/daily.yml`), no
 4. Do NOT run `scripts/update_prices.py` (Yahoo is blocked in the cloud sandbox; GitHub Actions refreshes prices several times a day).
    Validate all JSON in `data/` with `python3 -m json.tool`. Keep `data/insights.json` compact (`separators=(",",":")`, `ensure_ascii=False`),
    commit as "Haftalık Claude analizi YYYY-MM-DD" and push to `main`.
+
+## "Potansiyeli olan şirketler" (potential companies)
+
+- `scripts/potential.py` (free, runs in every GitHub Actions scan) writes `data/potential.json`: small companies priced about
+  €10–40 with recent supportive news, ranked by rules, each with automatic `points` in TR/EN. Do not edit that file by hand.
+- Claude owns `data/potential_notes.json` (`{"updated": "YYYY-MM-DD", "notes": {"TICKER": {...}}}`), written in the weekly run:
+  5. After the weekly items, read `data/potential.json`. For up to the top 8 companies, research the supporting event and
+     write a note:
+     ```json
+     "TNDM": {"date":"YYYY-MM-DD",
+       "text":{"tr":"...","en":"..."},
+       "precedent":{"tr":"...","en":"..."},
+       "sources":[{"title":"...","url":"https://..."}]}
+     ```
+     - `text`: 2–3 sentences on what support/deal the company got, from whom, and how big it is relative to the company
+       (e.g. "the contract is worth ~12% of last year's revenue").
+     - `precedent`: comparable companies that received the same kind of support or deal before and how they grew afterwards,
+       with years and approximate % moves or revenue growth, e.g. "Company X received a similar CHIPS Act grant in 2023;
+       its revenue grew ~40% over the next two years and the stock rose ~60%." Only verified facts with sources; if no close
+       precedent can be verified, say so plainly. Also mention one key risk.
+     - Remove notes for tickers that are no longer in `data/potential.json` and are older than 30 days.
+     - Information only, never buy/sell advice.
