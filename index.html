@@ -1,13 +1,58 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Yatırım Radarı</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
-<meta name="theme-color" content="#0f1419"><link rel="apple-touch-icon" href="icons/icon.svg"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head>
-<body><header><div class="hd"><h1 id="title">Yatırım Radarı</h1>
-<select id="lang" aria-label="Dil / Sprache / Language"><option value="tr">TR</option><option value="de">DE</option><option value="en">EN</option></select></div>
-<div class="sub" id="upd"></div></header>
-<section id="sec"></section>
-<div class="bar"><input id="q" type="search">
-<select id="fs"></select><select id="fm"></select><select id="ft"></select><select id="fc"></select><select id="fo"></select></div>
-<main id="list"></main>
+<meta name="theme-color" content="#0f1419"><link rel="icon" href="icons/icon.svg"><link rel="apple-touch-icon" href="icons/icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
+</svg>
+
+<header class="app-head">
+  <div class="brand">
+    <img src="icons/icon.svg" alt="" width="34" height="34">
+    <div><h1 id="title">Yatırım Radarı</h1><div class="sub" id="upd"></div></div>
+  </div>
+  <div class="seg seg-lang" id="lang" role="radiogroup" aria-label="Language">
+    <button data-v="tr">TR</button><button data-v="de">DE</button><button data-v="en">EN</button>
+  </div>
+</header>
+
+<div class="sticky" id="sticky">
+  <div class="searchrow">
+    <label class="search"><svg class="ic"><use href="#i-search"/></svg><input id="q" type="search" autocomplete="off"><button id="qx" class="qx" hidden aria-label="clear"><svg class="ic"><use href="#i-x"/></svg></button></label>
+    <button class="btn-filter" id="openFilters"><svg class="ic"><use href="#i-filter"/></svg><span id="ftxt"></span><b id="fcount" hidden></b></button>
+  </div>
+  <div class="pillrow">
+    <div class="seg" id="fm"></div>
+    <div class="seg" id="fo"></div>
+  </div>
+</div>
+
+<section class="mood" id="mood"></section>
+
+<section class="block" id="secBlock">
+  <div class="block-h"><h2 id="secTitle"></h2><span class="muted" id="secSub"></span></div>
+  <div class="chips" id="sec"></div>
+</section>
+
+<section class="block" id="featBlock" hidden>
+  <div class="block-h"><h2><svg class="ic acc"><use href="#i-spark"/></svg><span id="featTitle"></span></h2><span class="muted" id="featSub"></span></div>
+  <div class="carousel" id="feat"></div>
+</section>
+
+<main id="list" aria-live="polite"></main>
+
+<button class="totop" id="totop" hidden><svg class="ic"><use href="#i-up"/></svg></button>
 <footer id="foot"></footer>
-<script src="i18n.js"></script><script src="app.js"></script></body></html>
+
+<dialog id="sheet" class="sheet"><div class="sheet-in" id="sheetBody"></div></dialog>
+<dialog id="fsheet" class="sheet"><div class="sheet-in" id="fsheetBody"></div></dialog>
+
+<script src="i18n.js"></script><script src="app.js"></script>
+</body></html>

@@ -175,3 +175,32 @@ const CATS = {
       'Sharp moves often partly reverse.'],
   },
 };
+
+// Yeni arayüz metinleri (tasarım v2)
+Object.assign(I18N.tr, {
+  all: 'Tümü', filters: 'Filtreler', clear: 'Temizle', apply: 'Göster', close: 'Kapat',
+  featured: 'Claude analizleri', featuredSub: 'Haftanın en önemli olayları, yorumlu',
+  feed: 'Haber akışı', yesterday: 'Dün', ago: n => `${n} gün önce`, todayCap: 'Bugün',
+  market: 'Piyasa', source: 'Kaynak', type: 'Tür', category: 'Kategori', sector: 'Sektör',
+  allSectors: 'Tüm sektörler', results: n => `${n} sonuç`, openSource: 'Kaynağı aç', top: 'Başa dön',
+  moveToday: 'Günlük hareket', range: { m1: '1A', m3: '3A', m6: '6A' }, loading: 'Yükleniyor…',
+  sectorsTitle: 'Sektörler', sectorsSub: 'Son 3 ay getirisi · ABD + Avrupa fonları',
+});
+Object.assign(I18N.de, {
+  all: 'Alle', filters: 'Filter', clear: 'Zurücksetzen', apply: 'Anzeigen', close: 'Schließen',
+  featured: 'Claude-Analysen', featuredSub: 'Die wichtigsten Ereignisse der Woche, eingeordnet',
+  feed: 'Newsfeed', yesterday: 'Gestern', ago: n => `vor ${n} Tagen`, todayCap: 'Heute',
+  market: 'Markt', source: 'Quelle', type: 'Art', category: 'Kategorie', sector: 'Sektor',
+  allSectors: 'Alle Sektoren', results: n => `${n} Ergebnisse`, openSource: 'Quelle öffnen', top: 'Nach oben',
+  moveToday: 'Tagesbewegung', range: { m1: '1M', m3: '3M', m6: '6M' }, loading: 'Wird geladen…',
+  sectorsTitle: 'Sektoren', sectorsSub: 'Rendite 3 Monate · Fonds USA + Europa',
+});
+Object.assign(I18N.en, {
+  all: 'All', filters: 'Filters', clear: 'Reset', apply: 'Show', close: 'Close',
+  featured: 'Claude analysis', featuredSub: 'The week’s most important events, explained',
+  feed: 'News feed', yesterday: 'Yesterday', ago: n => `${n} days ago`, todayCap: 'Today',
+  market: 'Market', source: 'Source', type: 'Type', category: 'Category', sector: 'Sector',
+  allSectors: 'All sectors', results: n => `${n} results`, openSource: 'Open source', top: 'Back to top',
+  moveToday: 'Daily move', range: { m1: '1M', m3: '3M', m6: '6M' }, loading: 'Loading…',
+  sectorsTitle: 'Sectors', sectorsSub: '3-month return · US + Europe funds',
+});
