@@ -38,5 +38,6 @@ The daily free update runs in GitHub Actions (`.github/workflows/daily.yml`), no
    - `why`: concretely why this could move the stock (e.g. "this contract is ~8% of annual revenue"). `risk`: what could go wrong.
    - Short, plain language in all three languages. Information only: never tell the reader to buy or sell.
    - If an automatic item covers the same event, remove that automatic item so it is not shown twice.
-4. Run `python3 scripts/update_prices.py`, validate all JSON in `data/` with `python3 -m json.tool`,
+4. Do NOT run `scripts/update_prices.py` (Yahoo is blocked in the cloud sandbox; GitHub Actions refreshes prices several times a day).
+   Validate all JSON in `data/` with `python3 -m json.tool`. Keep `data/insights.json` compact (`separators=(",",":")`, `ensure_ascii=False`),
    commit as "Haftalık Claude analizi YYYY-MM-DD" and push to `main`.
