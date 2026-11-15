@@ -88,7 +88,7 @@ function renderAll() { renderControls(); renderMood(); renderSectors(); renderFe
 function renderControls() {
   const t = T();
   seg('#fm', [['', t.all], ['US', t.US], ['EU', t.EU]], F.market, 'market');
-  seg('#fo', [['', t.all], ['ai', 'Claude'], ['auto', t.auto]], F.source, 'source');
+  seg('#fo', [['ai', 'Claude'], ['auto', t.auto]], F.source, 'source');  // aktif olana tekrar dokununca kapanır
   const n = ['type', 'category', 'sector', 'signal'].filter(k => F[k]).length;
   $('#fcount').hidden = !n; $('#fcount').textContent = n;
 }
