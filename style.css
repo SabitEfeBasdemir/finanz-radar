@@ -229,3 +229,49 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .h-note { color: var(--mut); font-size: 11.5px; margin-top: 8px !important }
 .pill.upbg { background: color-mix(in srgb, var(--up) 14%, transparent); color: var(--up) }
 .pill.dnbg { background: color-mix(in srgb, var(--dn) 14%, transparent); color: var(--dn) }
+
+/* Etkileşimli grafik */
+.panel.chart { padding: 12px 12px 10px }
+.cx-loading { height: 330px; border-radius: 10px; background: linear-gradient(90deg, var(--card2), #26313f, var(--card2)); background-size: 200% 100%; animation: sh 1.2s infinite }
+.cx-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; margin-bottom: 4px; min-height: 44px }
+.cx-val { display: flex; flex-direction: column }
+.cx-price { font-size: 24px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.15 }
+.cx-chg { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums }
+.cx-date { color: var(--mut); font-size: 12px; text-align: right }
+.cx-main { margin: 0 -4px }
+.cx-svg { width: 100%; height: 230px; display: block; touch-action: none; cursor: crosshair; user-select: none; -webkit-user-select: none }
+.cx-grid line { stroke: var(--line); stroke-width: 1 }
+.cx-grid text { fill: var(--mut); font-size: 10.5px; font-variant-numeric: tabular-nums }
+.cx-ax { fill: var(--mut) }
+.cx-base { stroke: var(--mut); stroke-width: 1; stroke-dasharray: 3 4; opacity: .7 }
+.cx-news { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 3 }
+.cx-newst { fill: var(--accent); font-size: 10.5px; font-weight: 700 }
+.cx-ma20 { stroke: #f5c451; stroke-width: 1.4 }
+.cx-ma50 { stroke: #a78bfa; stroke-width: 1.4 }
+.cx-dot { fill: var(--bg); stroke: var(--tx); stroke-width: 1.5 }
+.cx-hl { fill: var(--tx); font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--card); stroke-width: 3px }
+.cx-cross line { stroke: var(--tx); stroke-width: 1; opacity: .6 }
+.cx-cross line.h { stroke-dasharray: 2 3; opacity: .35 }
+.cx-cross circle { fill: var(--accent); stroke: var(--bg); stroke-width: 2 }
+.cx-nav { position: relative; height: 46px; margin-top: 8px; border-radius: 10px; background: var(--card2); touch-action: none; user-select: none; -webkit-user-select: none }
+.cx-navsvg { width: 100%; height: 46px; display: block; opacity: .8 }
+.cx-win { position: absolute; top: 0; bottom: 0; min-width: 14px; border: 2px solid var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 16%, transparent); cursor: grab }
+.cx-h { position: absolute; top: 50%; width: 14px; height: 30px; margin-top: -15px; border-radius: 5px; background: var(--accent); cursor: ew-resize }
+.cx-h::after { content: ''; position: absolute; left: 5px; top: 9px; width: 4px; height: 12px; border-left: 1.5px solid #fff; border-right: 1.5px solid #fff; opacity: .8 }
+.cx-h.l { left: -9px } .cx-h.r { right: -9px }
+.cx-ctrl { display: flex; align-items: center; gap: 8px; margin-top: 10px }
+.cx-ctrl .seg { flex: 1; display: flex }
+.cx-ctrl .seg button { flex: 1; padding: 6px 2px }
+.cx-step { flex-shrink: 0; width: 34px; height: 32px; border-radius: 10px; border: 1px solid var(--line); background: var(--card2); font-size: 20px; line-height: 1; color: var(--tx) }
+.cx-step:disabled { opacity: .35 }
+.cx-opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center }
+.cx-opts .cx-ma { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: none; color: var(--mut); border-radius: 99px; padding: 4px 10px; font-size: 12px; font-weight: 600 }
+.cx-opts .cx-ma i { width: 12px; height: 3px; border-radius: 2px; background: #f5c451 }
+.cx-opts .cx-ma[data-ma="50"] i { background: #a78bfa }
+.cx-opts .cx-ma.on { color: var(--tx); border-color: var(--tx) }
+.cx-leg { display: inline-flex; align-items: center; gap: 6px; color: var(--mut); font-size: 12px; margin-left: auto }
+.cx-leg i { width: 12px; border-top: 2px dashed var(--accent) }
+.cx-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 10px; font-size: 13px; color: var(--mut) }
+.cx-stats b { color: var(--tx); font-variant-numeric: tabular-nums }
+.cx-stats b.up { color: var(--up) } .cx-stats b.dn { color: var(--dn) }
+.cx-hint { margin: 8px 0 0; color: var(--mut); font-size: 11.5px }

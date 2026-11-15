@@ -43,6 +43,8 @@ jobs:
         run: python scripts/update_sectors.py
       - name: Haber taraması
         run: python scripts/fetch_news.py
+      - name: Türkçe çeviri
+        run: python scripts/translate_items.py
       - name: Fiyatlar
         run: python scripts/update_prices.py
       - name: Kaydet ve yükle

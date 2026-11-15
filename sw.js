@@ -1,7 +1,7 @@
 // Önce ağ, çevrimdışıysa önbellek. Böylece hem uygulama hem veri güncellemeleri hemen görünür.
-const C = 'radar-v5';
+const C = 'radar-v6';
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(C).then(c => c.addAll(['./', 'index.html', 'style.css', 'app.js', 'i18n.js', 'manifest.json'])));
+  e.waitUntil(caches.open(C).then(c => c.addAll(['./', 'index.html', 'style.css', 'app.js', 'i18n.js', 'chart.js', 'manifest.json'])));
   self.skipWaiting();
 });
 self.addEventListener('activate', e => {

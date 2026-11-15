@@ -85,9 +85,18 @@ def main():
         syms |= {l.strip() for l in wl.read_text().splitlines() if l.strip() and not l.startswith("#")}
     data = fetch(sorted(syms))
 
-    six = (datetime.date.today() - datetime.timedelta(days=186)).isoformat()
-    prices = {s: {"history": [[d, round(x, 2)] for d, x in h if d >= six]} for s, h in data.items()}
+    # Kartlardaki mini grafikler için son 30 işlem günü tek dosyada (hızlı yükleme)
+    prices = {s: {"history": [[d, round(x, 2)] for d, x in h[-30:]]} for s, h in data.items()}
     (root / "data/prices.json").write_text(json.dumps({"updated": datetime.date.today().isoformat(), "tickers": prices}, separators=(",", ":")))
+    # Detay grafiği için her sembolün 2 yıllık kapanışları ayrı dosyada: data/p/<SEMBOL>.csv
+    # (satır başına bir gün; git yalnızca eklenen son satırları saklar, depo şişmez)
+    pdir = root / "data/p"
+    pdir.mkdir(exist_ok=True)
+    for s, h in data.items():
+        (pdir / f"{s}.csv").write_text("date,close\n" + "".join(f"{d},{round(x, 4)}\n" for d, x in h))
+    for f in pdir.glob("*.csv"):
+        if f.stem not in data and f.stem not in syms:
+            f.unlink()
 
     n = 0
     for it in ins["items"]:

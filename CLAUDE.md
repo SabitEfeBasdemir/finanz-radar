@@ -1,7 +1,7 @@
 # Yatırım Radarı
 
 Static PWA (index.html, i18n.js, app.js, style.css, sw.js) served by GitHub Pages from the repo root.
-UI languages: Turkish, German, English (`i18n.js`). Visitors can only change the language; the design is fixed in the
+UI languages: Turkish and English (`i18n.js`; German strings remain in the file but are not offered). Visitors can only change the language; the design is fixed in the
 "TASARIM AYARLARI" block at the top of `style.css` (do not add user-facing theme settings).
 
 ## Data
@@ -10,7 +10,8 @@ UI languages: Turkish, German, English (`i18n.js`). Visitors can only change the
 - `data/sectors.json`: 11 sectors ranked by 3-month return of a US and a European sector ETF; top 10 are `active` (`scripts/update_sectors.py`).
 - `data/insights.json`: news items. Two kinds:
   - automatic (`"auto": true`): written daily by `scripts/fetch_news.py` with keyword rules, headline/summary in the source language,
-    `why`/`risk` come from category templates in `i18n.js`. Kept 7 days. The scan runs 6 times a day (see the workflow).
+    `why`/`risk` come from category templates in `i18n.js`. `scripts/translate_items.py` turns headline/summary into
+    `{"en": original, "tr": machine translation}` (free Google endpoint, no Claude). Kept 7 days. The scan runs 6 times a day (see the workflow).
   - Claude analysis (`"ai": true`): written weekly by the Claude routine below. Kept 60 days.
 - `data/prices.json`: 6-month closes for every ticker in insights (`scripts/update_prices.py`).
 
@@ -28,12 +29,12 @@ The daily free update runs in GitHub Actions (`.github/workflows/daily.yml`), no
    {"ai":true,"ticker":"NVDA","name":"NVIDIA","market":"US|EU","type":"stock|fund","sector":"tech",
     "signal":"bullish|watch|bearish","category":"deal|mna|investment|gov|buyback|earnings|mgmt|legal|regulation|trial|analyst|product",
     "date":"YYYY-MM-DD",
-    "headline":{"tr":"...","de":"...","en":"..."},
-    "summary":{"tr":"...","de":"...","en":"..."},
-    "why":{"tr":"...","de":"...","en":"..."},
-    "risk":{"tr":"...","de":"...","en":"..."},
-    "outlook":{"tr":"...","de":"...","en":"..."},
-    "precedent":{"tr":"...","de":"...","en":"..."},
+    "headline":{"tr":"...","en":"..."},
+    "summary":{"tr":"...","en":"..."},
+    "why":{"tr":"...","en":"..."},
+    "risk":{"tr":"...","en":"..."},
+    "outlook":{"tr":"...","en":"..."},
+    "precedent":{"tr":"...","en":"..."},
     "sources":[{"title":"Reuters – ...","url":"https://..."}]}
    ```
    - `sector` is a key from `data/sectors.json`; `ticker` is the Yahoo Finance symbol (e.g. `ASML.AS`, `SAP.DE`, `AZN.L`).
@@ -47,7 +48,7 @@ The daily free update runs in GitHub Actions (`.github/workflows/daily.yml`), no
      can be verified, write that there is no close precedent instead of inventing one.
    - The app separately shows statistics computed from the stock's own 2-year price history (fields `since`, `day`, `vol`,
      `hist` added by `scripts/update_prices.py`); do not write or edit those fields.
-   - Short, plain language in all three languages. Information only: never tell the reader to buy or sell.
+   - Short, plain language in Turkish and English (no German). Information only: never tell the reader to buy or sell.
    - If an automatic item covers the same event, remove that automatic item so it is not shown twice.
 4. Do NOT run `scripts/update_prices.py` (Yahoo is blocked in the cloud sandbox; GitHub Actions refreshes prices several times a day).
    Validate all JSON in `data/` with `python3 -m json.tool`. Keep `data/insights.json` compact (`separators=(",",":")`, `ensure_ascii=False`),

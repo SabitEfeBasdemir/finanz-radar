@@ -1,14 +1,13 @@
 const $ = s => document.querySelector(s);
-const LANGS = ['tr', 'de', 'en'];
+const LANGS = ['tr', 'en'];
 const LI = { tr: 0, de: 1, en: 2 };
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
 };
 let lang = (() => {
-  const l = store.get('lang'); if (LANGS.includes(l)) return l;
-  const n = (navigator.language || 'tr').slice(0, 2);
-  return LANGS.includes(n) ? n : 'tr';
+  const l = store.get('lang');
+  return LANGS.includes(l) ? l : ((navigator.language || '').startsWith('en') ? 'en' : 'tr');
 })();
 
 // Uygulama durumu
@@ -167,32 +166,28 @@ function render() {
 }
 
 // ---------- Detay penceresi ----------
-let detailItem = null, rangeKey = 'm3';
-function bigChart(h) {
-  const t = T();
-  if (!h || h.length < 2) return `<div class="muted pad">${esc(t.noPrice)}</div>`;
-  const n = { m1: 22, m3: 64, m6: 999 }[rangeKey];
-  const s = h.slice(-n), v = s.map(x => x[1]), mn = Math.min(...v), mx = Math.max(...v), W = 600, H = 180, P = 6;
-  const X = i => P + i * (W - 2 * P) / (v.length - 1), Y = y => H - P - (y - mn) / ((mx - mn) || 1) * (H - 2 * P);
-  const pts = v.map((y, i) => `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(' ');
-  const up = v.at(-1) >= v[0], ch = (v.at(-1) / v[0] - 1) * 100;
-  const fmtD = d => new Date(d + 'T00:00:00').toLocaleDateString(lang, { day: 'numeric', month: 'short' });
-  return `<div class="ch-head"><b class="${up ? 'up' : 'dn'}">${pct(Math.round(ch * 10) / 10)}</b>
-      <div class="seg sm" id="rng">${Object.entries(t.range).map(([k, l]) => `<button data-r="${k}" class="${k === rangeKey ? 'on' : ''}">${l}</button>`).join('')}</div></div>
-    <svg class="big ${up ? 'up' : 'dn'}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-      <defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
-      <polygon points="${X(0)},${H} ${pts} ${X(v.length - 1)},${H}" fill="url(#g)"/>
-      <polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-    </svg>
-    <div class="ch-axis"><span>${fmtD(s[0][0])}</span><span>${fmtD(s.at(-1)[0])}</span></div>`;
+let detailItem = null, chartObj = null;
+// Detay grafiği: 2 yıllık veriyi yükle, etkileşimli grafiği kur (chart.js). Olmazsa son 30 güne düş.
+async function mountChart(x) {
+  const box = $('#cx'), st = $('#cxStats'); if (!box) return;
+  chartObj?.destroy?.(); chartObj = null;
+  let s;
+  try { s = await Chart.load(x.ticker); } catch (e) {
+    const h = (prices[x.ticker] || {}).history; if (h) s = { d: h.map(r => r[0]), c: h.map(r => r[1]) };
+  }
+  if (detailItem !== x || !document.body.contains(box)) return;
+  if (!s || s.c.length < 2) { box.innerHTML = `<div class="muted pad">${esc(T().noPrice)}</div>`; return; }
+  chartObj = Chart.mount(box, s, { lang, newsDate: x.date });
+  st.innerHTML = statTiles(s);
 }
-function statTiles(h, cur) {
-  if (!h || h.length < 2) return '';
-  const s = T().st, v = h.map(x => x[1]), last = v.at(-1), at = n => v[Math.max(0, v.length - 1 - n)];
+function statTiles(series) {
+  if (!series || series.c.length < 2) return '';
+  const s = T().st, v = series.c, last = v.at(-1), at = n => v[Math.max(0, v.length - 1 - n)];
+  const yr = v.slice(-252);
   const ch = n => Math.round((last / at(n) - 1) * 1000) / 10, f = x => num(x, 2);
   const tile = (l, val, cls = '') => `<div class="stat"><span>${l}</span><b class="${cls}">${val}</b></div>`;
   const c = n => tile(s[n === 1 ? 'd1' : n === 5 ? 'w1' : 'm1'], pct(ch(n)), ch(n) >= 0 ? 'up' : 'dn');
-  return `<div class="stats">${tile(s.last, f(last) + (cur ? ' ' + esc(cur) : ''))}${c(1)}${c(5)}${c(21)}${tile(s.hi, f(Math.max(...v)))}${tile(s.lo, f(Math.min(...v)))}</div>`;
+  return `<div class="stats">${tile(s.last, f(last))}${c(1)}${c(5)}${c(21)}${tile(s.hi52, f(Math.max(...yr)))}${tile(s.lo52, f(Math.min(...yr)))}</div>`;
 }
 function histPanel(x) {
   const H = HIST[lang], h = x.hist, out = [];
@@ -223,7 +218,6 @@ function histPanel(x) {
 function renderDetail() {
   const x = detailItem, t = T(), c = CATS[x.category], i = LI[lang];
   const why = x.auto ? (c ? c.why[i] : '') : L(x.why), risk = x.auto ? (c ? c.risk[i] : '') : L(x.risk);
-  const p = prices[x.ticker] || {};
   $('#sheetBody').innerHTML = `
     <div class="grab"></div>
     <div class="d-head">${avatar(x)}<div class="who"><b>${esc(x.ticker)}</b><span>${esc(x.name)} · ${esc(t[x.market] || x.market)} · ${x.type === 'fund' ? t.fund : t.stock}</span></div>
@@ -232,8 +226,8 @@ function renderDetail() {
       ${x.ai ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.ai)}</span>` : `<span class="pill ghost">${esc(t.auto)}</span>`}<span class="muted">${esc(dayLabel(x.date))}</span></div>
     <h2 class="d-title">${esc(L(x.headline))}</h2>
     ${L(x.summary) ? `<p class="d-sum">${esc(L(x.summary))}</p>` : ''}
-    <div class="panel chart">${bigChart(p.history)}</div>
-    ${statTiles(p.history, p.currency)}
+    <div class="panel chart" id="cx"><div class="cx-loading"></div></div>
+    <div id="cxStats"></div>
     ${why ? `<div class="panel why"><h4>${esc(t.why)}</h4><p>${esc(why)}</p></div>` : ''}
     ${risk ? `<div class="panel risk"><h4>${esc(t.risk)}</h4><p>${esc(risk)}</p></div>` : ''}
     ${L(x.outlook) ? `<div class="panel outlook"><h4>${esc(HIST[lang].outlook)}</h4><p>${esc(L(x.outlook))}</p></div>` : ''}
@@ -244,7 +238,7 @@ function renderDetail() {
 }
 function openDetail(id) {
   detailItem = items.find(x => itemKey(x) === id); if (!detailItem) return;
-  rangeKey = 'm3'; renderDetail();
+  renderDetail(); mountChart(detailItem);
   const d = $('#sheet'); d.showModal(); d.scrollTop = 0; $('#sheetBody').scrollTop = 0;
 }
 
@@ -281,7 +275,7 @@ document.addEventListener('keydown', e => {
 $('#lang').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   lang = b.dataset.v; store.set('lang', lang); applyLang();
-  if ($('#sheet').open) renderDetail();
+  if ($('#sheet').open) { renderDetail(); mountChart(detailItem); }
 });
 let qt;
 $('#q').addEventListener('input', e => {
@@ -293,8 +287,6 @@ $('#qx').addEventListener('click', () => { $('#q').value = ''; $('#qx').hidden =
 // Detay penceresi
 $('#sheet').addEventListener('click', e => {
   if (e.target === $('#sheet') || e.target.closest('#closeSheet')) { $('#sheet').close(); return; }
-  const r = e.target.closest('[data-r]');
-  if (r) { rangeKey = r.dataset.r; $('.panel.chart').innerHTML = bigChart((prices[detailItem.ticker] || {}).history); }
 });
 // Filtre penceresi
 $('#openFilters').addEventListener('click', () => { renderFilterSheet(); $('#fsheet').showModal(); });
