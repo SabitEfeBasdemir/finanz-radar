@@ -201,6 +201,10 @@ Object.assign(I18N.tr, {
   potRisk: 'Küçük şirketler çok oynak olabilir; iyi haber her zaman yükseliş demek değildir. Bu liste kurallarla otomatik seçilir, yatırım tavsiyesi değildir.',
   m1: '1 ay', m3: '3 ay', score: 'Puan',
 });
+Object.assign(I18N.tr, { full: 'Tam ekran', exitFull: 'Tam ekrandan çık',
+  a2hs: 'Tam ekran için: Safari\u2019de alttaki Paylaş butonuna, sonra “Ana Ekrana Ekle”ye dokun. Uygulama gibi, çubuklar olmadan açılır.' });
+Object.assign(I18N.en, { full: 'Full screen', exitFull: 'Exit full screen',
+  a2hs: 'For full screen: tap the Share button in Safari, then “Add to Home Screen”. It opens like an app, without browser bars.' });
 Object.assign(I18N.en, {
   potTitle: 'Companies with potential', potSub: 'Small companies at €10–40 with supportive news · updated every scan',
   potWhy: 'Why on the list?', potNote: 'Claude note: similar cases', potNews: 'Related news', small: 'Small cap', mid: 'Mid cap',

@@ -1,7 +1,7 @@
 <!doctype html><html lang="tr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Yatırım Radarı</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
-<meta name="theme-color" content="#0f1419"><link rel="icon" href="icons/icon.svg"><link rel="apple-touch-icon" href="icons/icon.svg">
+<meta name="theme-color" content="#0f1419"><link rel="icon" href="icons/icon.svg"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name="apple-mobile-web-app-title" content="Radar"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -11,6 +11,9 @@
   <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
   <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M5 15c-1.5 1.5-2 5-2 5s3.5-.5 5-2c.8-.8.8-2.2 0-3s-2.2-.8-3 0z"/><path d="M9 12a22 22 0 0 1 11-9c0 3-1 7.5-9 11z"/><path d="M9 12H5s.5-3 2-4c1.6-1.1 5 0 5 0M12 15v4s3-.5 4-2c1.1-1.6 0-5 0-5"/></symbol>
+  <symbol id="i-full" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+  <symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></symbol>
   <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
 </svg>
 
@@ -19,10 +22,14 @@
     <img src="icons/icon.svg" alt="" width="34" height="34">
     <div><h1 id="title">Yatırım Radarı</h1><div class="sub" id="upd"></div></div>
   </div>
-  <div class="seg seg-lang" id="lang" role="radiogroup" aria-label="Language">
-    <button data-v="tr">TR</button><button data-v="en">EN</button>
+  <div class="head-r">
+    <button class="icon-btn fs-btn" id="fsBtn" hidden><svg class="ic"><use href="#i-full"/></svg></button>
+    <div class="seg seg-lang" id="lang" role="radiogroup" aria-label="Language">
+      <button data-v="tr">TR</button><button data-v="en">EN</button>
+    </div>
   </div>
 </header>
+<div class="a2hs" id="a2hs" hidden><svg class="ic"><use href="#i-share"/></svg><span id="a2hsTxt"></span><button class="icon-btn" id="a2hsX" aria-label="close"><svg class="ic"><use href="#i-x"/></svg></button></div>
 
 <section class="block pot" id="potBlock" hidden>
   <div class="block-h"><h2><svg class="ic rk"><use href="#i-rocket"/></svg><span id="potTitle"></span></h2><span class="muted" id="potSub"></span></div>

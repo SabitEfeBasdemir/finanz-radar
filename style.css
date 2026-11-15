@@ -295,3 +295,16 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .potwhy li { overflow-wrap: anywhere }
 .rel { display: flex; flex-direction: column; gap: 8px }
 .rel .card { box-shadow: none }
+
+/* Tam ekran */
+.head-r { display: flex; align-items: center; gap: 8px; flex-shrink: 0 }
+.fs-btn { margin-left: 0; width: 36px; height: 36px; border: 1px solid var(--line); color: var(--tx) }
+.a2hs { max-width: 980px; margin: 4px 16px 0; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; font-size: 13px;
+  background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line)) }
+.a2hs > .ic { color: var(--accent); flex-shrink: 0 }
+.a2hs .icon-btn { width: 28px; height: 28px; background: none }
+@media (min-width: 1012px) { .a2hs { margin: 4px auto 0 } }
+/* Ana ekrandan açılınca (uygulama modu): çentik/durum çubuğu boşlukları */
+.is-app .app-head { padding-top: calc(10px + env(safe-area-inset-top)) }
+.is-app .sticky.stuck { padding-top: calc(8px + env(safe-area-inset-top)) }
+.is-app body, html.is-app { overscroll-behavior-y: none }

@@ -83,7 +83,7 @@ function applyLang() {
   $('#q').placeholder = t.search; $('#ftxt').textContent = t.filters;
   $('#secTitle').textContent = t.sectorsTitle; $('#secSub').textContent = t.sectorsSub;
   $('#featTitle').textContent = t.featured; $('#featSub').textContent = t.featuredSub;
-  $('#foot').textContent = t.foot; $('#totop').setAttribute('aria-label', t.top);
+  $('#foot').textContent = t.foot; fsUi(); a2hsUi(); $('#totop').setAttribute('aria-label', t.top);
   renderAll();
 }
 
@@ -366,6 +366,31 @@ $('#fsheet').addEventListener('click', e => {
 // Başa dön
 addEventListener('scroll', () => { $('#totop').hidden = scrollY < 900; $('#sticky').classList.toggle('stuck', scrollY > 120); }, { passive: true });
 $('#totop').addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+
+// ---------- Tam ekran ----------
+const standalone = matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone === true;
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+const canFs = !standalone && (document.fullscreenEnabled || document.webkitFullscreenEnabled);
+function fsUi() {
+  const b = $('#fsBtn'); if (!b) return;
+  b.hidden = !canFs; const on = !!fsEl();
+  b.querySelector('use').setAttribute('href', on ? '#i-exit' : '#i-full');
+  b.setAttribute('aria-label', on ? T().exitFull : T().full); b.title = b.getAttribute('aria-label');
+}
+$('#fsBtn').addEventListener('click', () => {
+  const d = document.documentElement;
+  if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  else (d.requestFullscreen || d.webkitRequestFullscreen).call(d).catch?.(() => {});
+});
+['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => document.addEventListener(ev, fsUi));
+// iPhone Safari'de (tam ekran API'si yok) bir kez "Ana Ekrana Ekle" ipucu göster
+const iosSafari = /iPhone|iPod/.test(navigator.userAgent) && !standalone;
+function a2hsUi() {
+  $('#a2hsTxt').textContent = T().a2hs;
+  $('#a2hs').hidden = !(iosSafari && store.get('a2hs') !== 'x');
+}
+$('#a2hsX').addEventListener('click', () => { store.set('a2hs', 'x'); $('#a2hs').hidden = true; });
+document.documentElement.classList.toggle('is-app', standalone);
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 load().catch(() => { $('#list').innerHTML = `<div class="empty"><b>${esc(T().empty)}</b></div>`; });
