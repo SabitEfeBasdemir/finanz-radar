@@ -308,3 +308,22 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .is-app .app-head { padding-top: calc(10px + env(safe-area-inset-top)) }
 .is-app .sticky.stuck { padding-top: calc(8px + env(safe-area-inset-top)) }
 .is-app body, html.is-app { overscroll-behavior-y: none }
+
+/* ===== Tam genişlik düzeni: içerik ekranın tamamını kullanır ===== */
+:root { --pad: 16px }
+@media (min-width: 720px) { :root { --pad: 28px } }
+@media (min-width: 1400px) { :root { --pad: 40px } }
+.app-head, .sticky > *, .mood, .block, main { max-width: none; margin-left: 0; margin-right: 0; padding-left: var(--pad); padding-right: var(--pad) }
+.a2hs { max-width: none; margin: 4px var(--pad) 0 }
+.chips, .carousel { margin: 0 calc(-1 * var(--pad)); padding-left: var(--pad); padding-right: var(--pad); scroll-padding-left: var(--pad) }
+@media (min-width: 720px) {
+  /* haberler: ekran genişledikçe sütun sayısı artar */
+  main { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); align-items: start }
+  .pillrow { display: flex; gap: 8px }
+  .pillrow .seg { flex: 0 0 auto }
+  .pillrow .seg button { flex: 0 0 auto; padding: 6px 14px }
+  .mood { grid-template-columns: repeat(3, minmax(0, 260px)) }
+  .fcard, .pcard { flex-basis: 320px }
+  .sheet { max-width: 760px }
+}
+@media (min-width: 1400px) { .fcard, .pcard { flex-basis: 340px } }
