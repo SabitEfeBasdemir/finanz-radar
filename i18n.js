@@ -204,3 +204,43 @@ Object.assign(I18N.en, {
   moveToday: 'Daily move', range: { m1: '1M', m3: '3M', m6: '6M' }, loading: 'Loading…',
   sectorsTitle: 'Sectors', sectorsSub: '3-month return · US + Europe funds',
 });
+
+// Geçmiş tepki ve yorum metinleri (tasarım v3)
+const HIST = {
+  tr: {
+    title: 'Geçmişte ne oldu?', since: 'Haberden bu yana', days: n => `${n} işlem günü`, dayMove: 'Haber günü',
+    normal: v => `Bu hissenin tipik günlük hareketi ±%${v}.`,
+    times: x => x >= 1.5 ? ` Bu haberdeki hareket bunun ${x.toLocaleString('tr',{maximumFractionDigits:1})} katı — olağan dışı.` : ' Bu haberdeki hareket olağan sınırlar içinde.',
+    head: (tk, thr, dir, n, y) => `Son ${y} yılda ${tk} bir günde %${thr}'den fazla ${dir > 0 ? 'yükseldi' : 'düştü'}: ${n} kez.`,
+    w1: '1 hafta sonra', m1: '1 ay sonra', higher: (u, n) => `${n} durumdan ${u} tanesinde fiyat daha yüksekti`, avg: 'ortalama',
+    rare: (tk, thr, dir, n) => `Son 2 yılda ${tk} için bir günde %${thr}'den fazla ${dir > 0 ? 'yükseliş' : 'düşüş'} çok nadir (${n} kez). Karşılaştırma için yeterli örnek yok.`,
+    tend: { rebound: 'Geçmişte bu tür düşüşlerden sonra hisse çoğunlukla toparlandı', fallmore: 'Geçmişte bu tür düşüşlerden sonra düşüş çoğunlukla sürdü',
+      followup: 'Geçmişte bu tür yükselişlerden sonra yükseliş çoğunlukla sürdü', giveback: 'Geçmişte bu tür yükselişlerden sonra kazançlar çoğunlukla geri verildi', mixed: 'Geçmişte net bir eğilim yok' },
+    note: 'Sadece bu hissenin kendi 2 yıllık fiyat geçmişinden hesaplandı. Geçmiş, geleceğin garantisi değildir.',
+    outlook: 'Bundan sonra ne olabilir?', precedent: 'Geçmişte benzer olaylar',
+  },
+  de: {
+    title: 'Was geschah früher?', since: 'Seit der Meldung', days: n => `${n} Handelstage`, dayMove: 'Tag der Meldung',
+    normal: v => `Typische Tagesbewegung dieser Aktie: ±${v} %.`,
+    times: x => x >= 1.5 ? ` Die Bewegung bei dieser Meldung war ${x.toLocaleString('de',{maximumFractionDigits:1})}-mal so groß – ungewöhnlich.` : ' Die Bewegung bei dieser Meldung lag im üblichen Rahmen.',
+    head: (tk, thr, dir, n, y) => `In den letzten ${y} Jahren ${dir > 0 ? 'stieg' : 'fiel'} ${tk} an einem Tag um mehr als ${thr} %: ${n}-mal.`,
+    w1: '1 Woche später', m1: '1 Monat später', higher: (u, n) => `in ${u} von ${n} Fällen höher`, avg: 'Durchschnitt',
+    rare: (tk, thr, dir, n) => `Ein Tages${dir > 0 ? 'anstieg' : 'verlust'} von über ${thr} % ist bei ${tk} in 2 Jahren sehr selten (${n}-mal). Zu wenige Fälle für einen Vergleich.`,
+    tend: { rebound: 'Nach solchen Verlusten hat sich die Aktie meist erholt', fallmore: 'Nach solchen Verlusten ging es meist weiter abwärts',
+      followup: 'Nach solchen Anstiegen ging es meist weiter aufwärts', giveback: 'Nach solchen Anstiegen wurden die Gewinne meist wieder abgegeben', mixed: 'Kein klares Muster in der Vergangenheit' },
+    note: 'Nur aus der eigenen 2-Jahres-Kurshistorie dieser Aktie berechnet. Vergangenheit ist keine Garantie für die Zukunft.',
+    outlook: 'Wie könnte es weitergehen?', precedent: 'Ähnliche Fälle in der Vergangenheit',
+  },
+  en: {
+    title: 'What happened before?', since: 'Since the news', days: n => `${n} trading days`, dayMove: 'News day',
+    normal: v => `This stock’s typical daily move is ±${v}%.`,
+    times: x => x >= 1.5 ? ` The move on this news was ${x.toLocaleString('en',{maximumFractionDigits:1})}× that — unusual.` : ' The move on this news was within the normal range.',
+    head: (tk, thr, dir, n, y) => `In the last ${y} years ${tk} ${dir > 0 ? 'rose' : 'fell'} more than ${thr}% in a day ${n} times.`,
+    w1: '1 week later', m1: '1 month later', higher: (u, n) => `higher in ${u} of ${n} cases`, avg: 'average',
+    rare: (tk, thr, dir, n) => `A one-day ${dir > 0 ? 'gain' : 'drop'} of more than ${thr}% is very rare for ${tk} over 2 years (${n} times). Not enough cases to compare.`,
+    tend: { rebound: 'After drops like this the stock mostly recovered', fallmore: 'After drops like this the decline mostly continued',
+      followup: 'After gains like this the rise mostly continued', giveback: 'After gains like this the stock mostly gave them back', mixed: 'No clear pattern in the past' },
+    note: 'Calculated only from this stock’s own 2-year price history. The past is no guarantee of the future.',
+    outlook: 'What could happen next?', precedent: 'Similar past events',
+  },
+};

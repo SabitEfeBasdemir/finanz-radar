@@ -132,7 +132,7 @@ function renderFeatured() {
       <div class="fc-top">${avatar(x)}<div class="who"><b>${esc(x.ticker)}</b><span>${esc(x.name)}</span></div>${sigTag(x.signal)}</div>
       <h3>${esc(L(x.headline))}</h3>
       <p>${esc(L(x.why))}</p>
-      <div class="meta"><span class="pill">${esc(secName(x.sector))}</span><span>${esc(dayLabel(x.date))}</span></div>
+      <div class="meta"><span class="pill">${esc(secName(x.sector))}</span>${x.since ? `<span class="pill ${x.since.pct >= 0 ? 'upbg' : 'dnbg'}">${esc(HIST[lang].since)} ${pct(x.since.pct)}</span>` : ''}<span>${esc(dayLabel(x.date))}</span></div>
     </article>`).join('');
 }
 
@@ -194,6 +194,32 @@ function statTiles(h, cur) {
   const c = n => tile(s[n === 1 ? 'd1' : n === 5 ? 'w1' : 'm1'], pct(ch(n)), ch(n) >= 0 ? 'up' : 'dn');
   return `<div class="stats">${tile(s.last, f(last) + (cur ? ' ' + esc(cur) : ''))}${c(1)}${c(5)}${c(21)}${tile(s.hi, f(Math.max(...v)))}${tile(s.lo, f(Math.min(...v)))}</div>`;
 }
+function histPanel(x) {
+  const H = HIST[lang], h = x.hist, out = [];
+  const tiles = [];
+  if (x.since) tiles.push(`<div class="stat"><span>${esc(H.since)}</span><b class="${x.since.pct >= 0 ? 'up' : 'dn'}">${pct(x.since.pct)}</b><i>${esc(H.days(x.since.days))}</i></div>`);
+  const dm = x.move ?? x.day;
+  if (dm != null) tiles.push(`<div class="stat"><span>${esc(H.dayMove)}</span><b class="${dm >= 0 ? 'up' : 'dn'}">${pct(dm)}</b>${x.vol ? `<i>±${num(x.vol)}% ${esc(T().st.d1)}</i>` : ''}</div>`);
+  if (tiles.length) out.push(`<div class="stats two">${tiles.join('')}</div>`);
+  let txt = '';
+  if (x.vol && dm != null) txt += H.normal(num(x.vol)) + H.times(Math.abs(dm) / x.vol);
+  if (h && h.n >= 3) {
+    const r20 = h.n20 ? h.up20 / h.n20 : 0.5;
+    const tk = r20 >= 0.6 ? (h.dir < 0 ? 'rebound' : 'followup') : r20 <= 0.4 ? (h.dir < 0 ? 'fallmore' : 'giveback') : 'mixed';
+    const good = tk === 'rebound' || tk === 'followup', bad = tk === 'fallmore' || tk === 'giveback';
+    const meter = (label, u, n, avg) => n ? `<div class="meter"><div class="m-top"><span>${esc(label)}</span><b class="${avg >= 0 ? 'up' : 'dn'}">${esc(H.avg)} ${pct(avg)}</b></div>
+      <u class="m-bar"><u style="width:${Math.round(u / n * 100)}%"></u></u><div class="m-sub">${esc(H.higher(u, n))}</div></div>` : '';
+    out.push(`<p class="h-head">${esc(H.head(x.ticker, num(h.thr), h.dir, h.n, num(h.years || 2, 0)))}</p>
+      ${meter(H.w1, h.up5, h.n5, h.avg5)}${meter(H.m1, h.up20, h.n20, h.avg20)}
+      <div class="trend ${good ? 'good' : bad ? 'bad' : ''}">${esc(H.tend[tk])}</div>`);
+  } else if (h) {
+    out.push(`<p class="h-head">${esc(H.rare(x.ticker, num(h.thr), h.dir, h.n))}</p>`);
+  }
+  if (txt) out.push(`<p class="h-txt">${esc(txt)}</p>`);
+  if (!out.length) return '';
+  return `<div class="panel hist"><h4>${esc(H.title)}</h4>${out.join('')}<p class="h-note">${esc(H.note)}</p></div>`;
+}
+
 function renderDetail() {
   const x = detailItem, t = T(), c = CATS[x.category], i = LI[lang];
   const why = x.auto ? (c ? c.why[i] : '') : L(x.why), risk = x.auto ? (c ? c.risk[i] : '') : L(x.risk);
@@ -210,6 +236,9 @@ function renderDetail() {
     ${statTiles(p.history, p.currency)}
     ${why ? `<div class="panel why"><h4>${esc(t.why)}</h4><p>${esc(why)}</p></div>` : ''}
     ${risk ? `<div class="panel risk"><h4>${esc(t.risk)}</h4><p>${esc(risk)}</p></div>` : ''}
+    ${L(x.outlook) ? `<div class="panel outlook"><h4>${esc(HIST[lang].outlook)}</h4><p>${esc(L(x.outlook))}</p></div>` : ''}
+    ${L(x.precedent) ? `<div class="panel prec"><h4>${esc(HIST[lang].precedent)}</h4><p>${esc(L(x.precedent))}</p></div>` : ''}
+    ${histPanel(x)}
     <h4 class="src-h">${esc(t.sources)}</h4>
     <div class="srcs">${(x.sources || []).map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>`;
 }
