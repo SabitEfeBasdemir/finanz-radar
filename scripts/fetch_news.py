@@ -14,7 +14,7 @@ UA = {"User-Agent": "Mozilla/5.0"}
 HOURS = 48          # bu kadar saatten eski haberler alınmaz
 BIG_MOVE = 5.0      # bu yüzdeden fazla hareket eden hisse, olay türü olmasa da kaydedilir
 MAX_PER_TICKER = 2
-MAX_NEW = 250       # günde en fazla bu kadar yeni kayıt
+MAX_NEW = 80        # tarama başına en fazla bu kadar yeni kayıt (en önemliler; günde 6 tarama)
 KEEP_AUTO_DAYS = 7
 KEEP_AI_DAYS = 60
 
@@ -144,7 +144,7 @@ def main():
                 "id": hashlib.sha1(n["url"].encode()).hexdigest()[:12], "auto": True,
                 "ticker": sym, "name": c["name"], "market": c["market"], "type": "stock", "sector": c["sector"],
                 "signal": signal(n["title"] + " " + n["desc"], m), "category": cat, "date": n["date"], "move": m,
-                "headline": n["title"], "summary": n["desc"][:400],
+                "headline": n["title"], "summary": n["desc"][:280],
                 "sources": [{"title": host, "url": n["url"]}]}))
     new = [x for _, x in sorted(cand, key=lambda p: -p[0])[:MAX_NEW]]
 

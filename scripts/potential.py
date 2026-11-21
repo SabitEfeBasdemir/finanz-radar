@@ -21,7 +21,7 @@ TOP = 15
 W = {"gov": 5, "deal": 4, "regulation": 4, "trial": 4, "investment": 3, "mna": 2, "product": 2, "earnings": 2, "buyback": 1, "analyst": 1, "move": 1, "mgmt": 0}
 NEG = {"legal": -5}
 SMALL = {"S&P 600": 3, "S&P 400": 1.5}
-BIG = {"S&P 500": -2.5, "FTSE 100": -1.5, "EURO STOXX 50": -2.5, "DAX": -1.5, "CAC 40": -1.5, "SMI": -2, "AEX": -1.5}
+BIG = {"S&P 500", "FTSE 100", "EURO STOXX 50", "DAX", "CAC 40", "SMI", "AEX", "FTSE MIB", "IBEX 35", "OMX Stockholm 30"}  # büyük şirket endeksleri: listeye alınmaz
 SUFFIX_CCY = {"L": "GBp", "SW": "CHF", "ST": "SEK", "CO": "DKK", "HE": "EUR", "OL": "NOK"}
 FX_SYM = {"USD": "EURUSD=X", "GBP": "EURGBP=X", "CHF": "EURCHF=X", "SEK": "EURSEK=X", "DKK": "EURDKK=X", "NOK": "EURNOK=X"}
 
@@ -103,6 +103,8 @@ def main():
         s = series(tk)
         if not s or len(s) < 30:
             continue
+        if uni.get(tk, {}).get("index") in BIG:
+            continue
         eur = to_eur(tk, s[-1][1], fx)
         if not (PMIN <= eur <= PMAX):
             continue
@@ -136,7 +138,7 @@ def main():
         if m1 is not None:
             score += max(-3, min(3, m1 / 6))
         idx = uni.get(tk, {}).get("index", "")
-        score += SMALL.get(idx, 0) + BIG.get(idx, 0)
+        score += SMALL.get(idx, 0)
         lead = pos[0]
         hist = lead.get("hist") or {}
         # Otomatik destekleyici noktalar
