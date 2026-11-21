@@ -350,3 +350,36 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .fb textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px }
 .fb .btn { width: 100%; margin-top: 8px }
 .fb .btn:disabled { opacity: .45 }
+
+/* Yatırsaydın ne olurdu? */
+.calc { border-left: 3px solid #22c55e }
+.c-ctrl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 }
+.c-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--mut); font-weight: 600; min-width: 0 }
+.c-field input, .c-amt { background: var(--card2); color: var(--tx); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 16px; font-weight: 700; min-width: 0; width: 100% }
+.c-amt { display: flex; align-items: center; gap: 6px; padding: 0 10px }
+.c-amt input { border: 0; background: none; padding: 8px 0; outline: 0; font-size: 16px; font-weight: 700; color: var(--tx); width: 100%; min-width: 0 }
+.c-amt i { font-style: normal; color: var(--mut) }
+.c-field input:focus, .c-amt:focus-within { outline: 2px solid var(--accent); outline-offset: -1px }
+.c-field input[type=date] { color-scheme: dark }
+.c-per { display: flex; margin-bottom: 8px } .c-per button { flex: 1 }
+.c-line { margin: 6px 0 2px !important; color: var(--mut); font-size: 13px }
+.c-res { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px }
+.c-res b { font-size: 26px; letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.c-split { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; font-size: 13px; color: var(--mut) }
+.c-split b { font-variant-numeric: tabular-nums }
+
+/* Radar Analizi çerçevesi */
+.radar { margin-top: 22px; margin-left: var(--pad); margin-right: var(--pad); padding: 14px 0 6px; border-radius: 20px;
+  background: linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(135deg, #3b82f6, #a78bfa 55%, #f5c451) border-box; border: 1.5px solid transparent;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 8%, transparent) }
+.radar .block-h { padding: 0 var(--pad) }
+.radar .block-h h2 { font-size: 19px }
+.radar .carousel { margin: 0; padding-left: 14px; padding-right: 14px }
+.rbadge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #c4b5fd; background: color-mix(in srgb, #a78bfa 16%, transparent); border-radius: 99px; padding: 3px 9px; margin-left: 4px }
+.radar-box { margin: 10px 0 4px; padding: 12px; border-radius: 16px;
+  background: linear-gradient(var(--bg), var(--bg)) padding-box, linear-gradient(135deg, #3b82f6, #a78bfa 55%, #f5c451) border-box; border: 1.5px solid transparent }
+.rb-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 10px }
+.rb-title { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px; background: linear-gradient(90deg, #93c5fd, #c4b5fd); -webkit-background-clip: text; background-clip: text; color: transparent }
+.rb-title .ic { color: #93c5fd; fill: #93c5fd; stroke: none; width: 16px; height: 16px }
+.rb-sub { font-size: 12px; color: var(--mut) }
+.radar-box .panel:first-of-type { margin-top: 8px }

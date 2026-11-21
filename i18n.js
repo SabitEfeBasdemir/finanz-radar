@@ -10,7 +10,7 @@ const I18N = {
     why: 'Neden önemli', risk: 'Risk', chart: 'Grafik · 6 ay', sources: 'Kaynaklar', summary: 'Özet',
     noPrice: 'Fiyat verisi henüz yok.', empty: 'Sonuç yok.', today: 'bugün',
     st: { last: 'Son fiyat', d1: '1 gün', w1: '1 hafta', m1: '1 ay', hi: 'Dönem yüksek', lo: 'Dönem düşük', hi52: '52 hafta yüksek', lo52: '52 hafta düşük' },
-    auto: 'Otomatik', ai: 'Claude analizi', more: 'Daha fazla göster',
+    auto: 'Otomatik', ai: 'Radar Analizi', more: 'Daha fazla göster',
     foot: 'Bilgilendirme amaçlıdır, yatırım tavsiyesi değildir. Otomatik kayıtlar kelime kurallarıyla etiketlenir; kaynakları kontrol et.',
   },
   de: {
@@ -36,7 +36,7 @@ const I18N = {
     why: 'Why it matters', risk: 'Risk', chart: 'Chart · 6 months', sources: 'Sources', summary: 'Summary',
     noPrice: 'No price data yet.', empty: 'No results.', today: 'today',
     st: { last: 'Last price', d1: '1 day', w1: '1 week', m1: '1 month', hi: 'High', lo: 'Low', hi52: '52-week high', lo52: '52-week low' },
-    auto: 'Automatic', ai: 'Claude analysis', more: 'Show more',
+    auto: 'Automatic', ai: 'Radar Analysis', more: 'Show more',
     foot: 'For information only, not investment advice. Automatic entries are tagged by keyword rules; check the sources.',
   },
 };
@@ -180,7 +180,7 @@ const CATS = {
 // Yeni arayüz metinleri (tasarım v2)
 Object.assign(I18N.tr, {
   all: 'Tümü', filters: 'Filtreler', clear: 'Temizle', apply: 'Göster', close: 'Kapat',
-  featured: 'Claude analizleri', featuredSub: 'Haftanın en önemli olayları, yorumlu',
+  featured: 'Radar Analizi', featuredSub: 'Claude’un haftalık detaylı analizleri ve yorumları',
   feed: 'Haber akışı', yesterday: 'Dün', ago: n => `${n} gün önce`, todayCap: 'Bugün',
   market: 'Piyasa', source: 'Kaynak', type: 'Tür', category: 'Kategori', sector: 'Sektör',
   allSectors: 'Tüm sektörler', results: n => `${n} sonuç`, openSource: 'Kaynağı aç', top: 'Başa dön',
@@ -218,6 +218,18 @@ Object.assign(I18N.tr, { investor: 'Yatırımcı gözüyle (12 ay+)', bull: 'Olu
 Object.assign(I18N.en, { investor: 'Investor view (12m+)', bull: 'Upside scenario', bear: 'Downside scenario', triggers: 'What would change the view?',
   fbTitle: 'How was this analysis?', fbUp: 'Liked it', fbDown: 'Didn’t like it', fbNote: 'Short note (optional): what do you want more or less of?',
   fbSend: 'Send on GitHub', fbHelp: 'Your note is saved on GitHub; Claude reads it every week and adjusts its analyses to your preferences. You need to be signed in to GitHub to send it.' });
+Object.assign(I18N.tr, { radarShort: 'Radar', weekly: 'Haftalık · Claude', analysedBy: 'Claude’un haftalık analizi',
+  calcTitle: 'Yatırsaydın ne olurdu?', calcAgo: { m1: '1 ay', m6: '6 ay', y1: '1 yıl', y2: '2 yıl' },
+  calcLine: (amt, p, d) => `${p} önce (${d}) ${amt} yatırsaydın, bugün değeri:`,
+  calcLine2: (amt, d) => `${d} tarihinde ${amt} yatırsaydın, bugün değeri:`, calcAmtL: 'Tutar', calcFrom: 'Başlangıç tarihi', calcAnn: 'Yıllık ortalama', calcProfit: 'Kâr', calcLoss: 'Zarar',
+  calcStock: 'Hisse/fon fiyatı', calcFx: 'Kur etkisi (€)', calcShort: 'Bu dönem için yeterli fiyat geçmişi yok.',
+  calcNote: 'Avro bazında, iki tarihteki gerçek kurla hesaplandı. Temettüler, vergiler ve işlem ücretleri dahil değil. Geçmiş getiri geleceği göstermez.' });
+Object.assign(I18N.en, { radarShort: 'Radar', weekly: 'Weekly · Claude', analysedBy: 'Claude’s weekly analysis',
+  calcTitle: 'What if you had invested?', calcAgo: { m1: '1 month', m6: '6 months', y1: '1 year', y2: '2 years' },
+  calcLine: (amt, p, d) => `If you had invested ${amt} ${p} ago (${d}), today it would be worth:`,
+  calcLine2: (amt, d) => `If you had invested ${amt} on ${d}, today it would be worth:`, calcAmtL: 'Amount', calcFrom: 'Start date', calcAnn: 'Annualised', calcProfit: 'Gain', calcLoss: 'Loss',
+  calcStock: 'Share/fund price', calcFx: 'Currency effect (€)', calcShort: 'Not enough price history for this period.',
+  calcNote: 'In euros, using the actual exchange rate on both dates. Excludes dividends, taxes and fees. Past returns do not predict the future.' });
 Object.assign(I18N.en, { full: 'Full screen', exitFull: 'Exit full screen',
   a2hs: 'For full screen: tap the Share button in Safari, then “Add to Home Screen”. It opens like an app, without browser bars.' });
 Object.assign(I18N.en, {
@@ -228,7 +240,7 @@ Object.assign(I18N.en, {
 });
 Object.assign(I18N.en, {
   all: 'All', filters: 'Filters', clear: 'Reset', apply: 'Show', close: 'Close',
-  featured: 'Claude analysis', featuredSub: 'The week’s most important events, explained',
+  featured: 'Radar Analysis', featuredSub: 'Claude’s detailed weekly analyses and commentary',
   feed: 'News feed', yesterday: 'Yesterday', ago: n => `${n} days ago`, todayCap: 'Today',
   market: 'Market', source: 'Source', type: 'Type', category: 'Category', sector: 'Sector',
   allSectors: 'All sectors', results: n => `${n} results`, openSource: 'Open source', top: 'Back to top',

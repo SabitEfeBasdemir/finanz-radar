@@ -115,6 +115,8 @@ def main():
     wl = root / "watchlist.txt"
     if wl.exists():
         syms |= {l.strip() for l in wl.read_text().splitlines() if l.strip() and not l.startswith("#")}
+    # Avro kurları: "1.000 € yatırsaydın" hesabı için (hisse para birimi -> EUR, her iki tarihteki kurla)
+    syms |= {"EURUSD=X", "EURGBP=X", "EURCHF=X", "EURSEK=X", "EURDKK=X", "EURNOK=X"}
     data = fetch(sorted(syms))
 
     # Kartlardaki mini grafikler için son 30 işlem günü tek dosyada (hızlı yükleme)

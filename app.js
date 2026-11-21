@@ -112,7 +112,7 @@ function renderPotential() {
       <p>${esc(first.replace(/^[^:]+:\s*/, ''))}</p>
       <div class="meta">${(r.cats || []).slice(0, 2).map(c => `<span class="pill">${esc(catName(c))}</span>`).join('')}
         ${sizeTag(r) ? `<span class="pill ghost">${esc(sizeTag(r))}</span>` : ''}
-        ${note ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>Claude</span>` : ''}</div>
+        ${note ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>${esc(T().radarShort)}</span>` : ''}</div>
     </article>`;
   }).join('');
 }
@@ -138,6 +138,7 @@ function openPotential(tk) {
       ${(note.sources || []).length ? `<div class="srcs" style="margin-top:10px">${note.sources.map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>` : ''}</div>` : ''}
     <div class="panel chart" id="cx"><div class="cx-loading"></div></div>
     <div id="cxStats"></div>
+    <div id="calc"></div>
     ${related.length ? `<h4 class="src-h">${esc(t.potNews)}</h4><div class="rel">${related.map(card).join('')}</div>` : ''}
     <p class="h-note" style="margin-top:14px">${esc(t.potRisk)}</p>`;
   const d = $('#sheet'); if (!d.open) d.showModal(); $('#sheetBody').scrollTop = 0;
@@ -147,7 +148,7 @@ function openPotential(tk) {
 function renderControls() {
   const t = T();
   seg('#fm', [['', t.all], ['US', t.US], ['EU', t.EU]], F.market, 'market');
-  seg('#fo', [['ai', 'Claude'], ['auto', t.auto]], F.source, 'source');  // aktif olana tekrar dokununca kapanır
+  seg('#fo', [['ai', t.radarShort], ['auto', t.auto]], F.source, 'source');  // aktif olana tekrar dokununca kapanır
   const n = ['type', 'category', 'sector', 'signal'].filter(k => F[k]).length;
   $('#fcount').hidden = !n; $('#fcount').textContent = n;
 }
@@ -185,11 +186,13 @@ function renderFeatured() {
   const show = ai.length && !F.q && F.source !== 'auto';
   $('#featBlock').hidden = !show;
   if (!show) return;
+  const last = ai.map(x => x.date).sort().at(-1);
+  $('#featBadge').textContent = `${t.weekly}${last ? ' · ' + new Date(last + 'T00:00:00').toLocaleDateString(lang, { day: 'numeric', month: 'long' }) : ''}`;
   $('#feat').innerHTML = ai.map(x => `
     <article class="fcard" data-id="${esc(itemKey(x))}" tabindex="0">
       <div class="fc-top">${avatar(x)}<div class="who"><b>${esc(x.ticker)}</b><span>${esc(x.name)}</span></div>${sigTag(x.signal)}</div>
       <h3>${esc(L(x.headline))}</h3>
-      <p>${esc(L(x.why))}</p>
+      <p>${esc(L(x.tldr) || L(x.why))}</p>
       <div class="meta"><span class="pill">${esc(secName(x.sector))}</span>${x.since ? `<span class="pill ${x.since.pct >= 0 ? 'upbg' : 'dnbg'}">${esc(HIST[lang].since)} ${pct(x.since.pct)}</span>` : ''}<span>${esc(dayLabel(x.date))}</span></div>
     </article>`).join('');
 }
@@ -205,7 +208,7 @@ function card(x) {
     </div>
     <h3>${esc(L(x.headline))}</h3>
     <div class="meta">${sigTag(x.signal)}<span class="pill">${esc(catName(x.category))}</span>${x.sector ? `<span class="pill ghost">${esc(secName(x.sector))}</span>` : ''}
-      ${x.ai ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>Claude</span>` : ''}</div>
+      ${x.ai ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>${esc(T().radarShort)}</span>` : ''}</div>
   </article>`;
 }
 
@@ -224,6 +227,72 @@ function render() {
   $('#list').innerHTML = html;
 }
 
+// ---------- "Yatırsaydın ne olurdu?" (avro bazında, iki tarihteki kurla) ----------
+const CCY = { L: ['GBP', 100], SW: ['CHF', 1], ST: ['SEK', 1], CO: ['DKK', 1], OL: ['NOK', 1] };
+const EUR_SUFFIX = new Set(['DE', 'PA', 'AS', 'MI', 'MC', 'HE', 'BR', 'LS', 'VI', 'IR', 'F']);
+function ccyOf(tk) {
+  const suf = tk.includes('.') ? tk.split('.').pop() : '';
+  if (EUR_SUFFIX.has(suf)) return ['EUR', 1];
+  return CCY[suf] || ['USD', 1];
+}
+const fxCache = {};
+// EUR->döviz kuru: son 2 yıl günlük (data/p), daha eskisi aylık (data/m)
+function fxSeries(ccy) {
+  if (ccy === 'EUR') return Promise.resolve(null);
+  const get = f => fetch(f).then(r => r.ok ? r.text() : '').catch(() => '');
+  return fxCache[ccy] ||= Promise.all([get(`data/m/EUR${ccy}=X.csv`), get(`data/p/EUR${ccy}=X.csv`)]).then(([m, d]) => {
+    const map = new Map();
+    for (const t of [m, d]) for (const l of t.split('\n').slice(1)) { const [k, v] = l.split(','); if (k && v) map.set(k, +v); }
+    return new Map([...map.entries()].sort((x, y) => x[0] < y[0] ? -1 : 1));
+  });
+}
+const valueOn = (m, d) => { if (!m || !m.size) return null; let best = null; for (const [k, v] of m) { if (k <= d) best = v; else break; } return best ?? m.values().next().value; };
+// fiyat geçmişi: aylık (borsaya açılıştan) + günlük (son 2 yıl) birleşik, tarih sıralı
+function priceMap(sets) {
+  const m = new Map();
+  if (sets.max) sets.max.d.forEach((d, i) => m.set(d, sets.max.c[i]));
+  sets.daily.d.forEach((d, i) => m.set(d, sets.daily.c[i]));
+  return new Map([...m.entries()].sort((x, y) => x[0] < y[0] ? -1 : 1));
+}
+let calcAmt = +(store.get('calcAmt') || 1000), calcPer = 'y1', calcDate = '', calcCtx = null;
+async function renderCalc(tk, sets) {
+  const box = $('#calc'); if (!box || !sets?.daily || sets.daily.c.length < 2) return;
+  calcCtx = { tk, sets };
+  const t = T(), [ccy, div] = ccyOf(tk), fx = await fxSeries(ccy), pm = priceMap(sets);
+  const first = pm.keys().next().value, end = sets.daily.d.at(-1);
+  const days = { m1: 31, m6: 183, y1: 365, y2: 730 }[calcPer];
+  let startD = calcDate || new Date(new Date(end + 'T00:00:00') - days * 864e5).toISOString().slice(0, 10);
+  if (startD < first) startD = first;
+  if (startD > end) startD = end;
+  // başlangıç: seçilen tarihteki veya hemen sonraki ilk kapanış
+  let d0 = null, c0 = null; for (const [k, v] of pm) { if (k >= startD) { d0 = k; c0 = v; break; } }
+  const fmtE = v => v.toLocaleString(lang, { style: 'currency', currency: 'EUR', maximumFractionDigits: Math.abs(v) >= 1000 ? 0 : 2 });
+  const per = Object.entries(t.calcAgo).map(([k, l]) => `<button class="${!calcDate && k === calcPer ? 'on' : ''}" data-cp="${k}">${l}</button>`).join('');
+  let body;
+  if (!d0 || d0 >= end) body = `<p class="muted">${esc(t.calcShort)}</p>`;
+  else {
+    const p0 = c0 / div, p1 = sets.daily.c.at(-1) / div;
+    const r0 = valueOn(fx, d0) || 1, r1 = valueOn(fx, end) || 1;
+    const val = calcAmt * (p1 / r1) / (p0 / r0), pl = val - calcAmt, chg = (val / calcAmt - 1) * 100;
+    const stockPct = (p1 / p0 - 1) * 100, fxPct = ccy === 'EUR' ? 0 : (r0 / r1 - 1) * 100;
+    const r1d = v => Math.round(v * 10) / 10;
+    const dTxt = new Date(d0 + 'T00:00:00').toLocaleDateString(lang, { day: 'numeric', month: 'short', year: 'numeric' });
+    const yrs = (new Date(end) - new Date(d0)) / 3.156e10, ann = yrs >= 1 ? (Math.pow(val / calcAmt, 1 / yrs) - 1) * 100 : null;
+    body = `<p class="c-line">${esc(t.calcLine2(fmtE(calcAmt), dTxt))}</p>
+      <div class="c-res"><b class="${pl >= 0 ? 'up' : 'dn'}">${fmtE(val)}</b>
+        <span class="pill ${pl >= 0 ? 'upbg' : 'dnbg'}">${pl >= 0 ? t.calcProfit : t.calcLoss}: ${pl >= 0 ? '+' : '−'}${fmtE(Math.abs(pl))} (${pct(r1d(chg))})</span></div>
+      <div class="c-split">${ccy !== 'EUR' ? `<span>${esc(t.calcStock)} (${ccy}) <b class="${stockPct >= 0 ? 'up' : 'dn'}">${pct(r1d(stockPct))}</b></span><span>${esc(t.calcFx)} <b class="${fxPct >= 0 ? 'up' : 'dn'}">${pct(r1d(fxPct))}</b></span>` : ''}
+        ${ann != null ? `<span>${esc(t.calcAnn)} <b class="${ann >= 0 ? 'up' : 'dn'}">${pct(r1d(ann))}</b></span>` : ''}</div>`;
+  }
+  box.innerHTML = `<div class="panel calc"><h4>${esc(t.calcTitle)}</h4>
+    <div class="c-ctrl">
+      <label class="c-field"><span>${esc(t.calcAmtL)}</span><span class="c-amt"><input id="calcAmt" type="number" inputmode="decimal" min="1" step="any" value="${calcAmt}"><i>€</i></span></label>
+      <label class="c-field"><span>${esc(t.calcFrom)}</span><input id="calcDate" type="date" min="${first}" max="${end}" value="${d0 || startD}"></label>
+    </div>
+    <div class="seg sm c-per">${per}</div>
+    ${body}<p class="h-note">${esc(t.calcNote)}</p></div>`;
+}
+
 // ---------- Detay penceresi ----------
 let detailItem = null, chartObj = null;
 // Detay grafiği: 2 yıllık veriyi yükle, etkileşimli grafiği kur (chart.js). Olmazsa son 30 güne düş.
@@ -238,6 +307,7 @@ async function mountChart(x) {
   if (!sets || !sets.daily || sets.daily.c.length < 2) { box.innerHTML = `<div class="muted pad">${esc(T().noPrice)}</div>`; return; }
   chartObj = Chart.mount(box, sets, { lang, newsDate: x.date });
   st.innerHTML = statTiles(sets.daily);
+  calcPer = 'y1'; calcDate = ''; renderCalc(x.ticker, sets);   // tutar oturum boyunca hatırlanır
 }
 function statTiles(series) {
   if (!series || series.c.length < 2) return '';
@@ -277,17 +347,7 @@ function histPanel(x) {
 function renderDetail() {
   const x = detailItem, t = T(), c = CATS[x.category], i = LI[lang];
   const why = x.auto ? (c ? c.why[i] : '') : L(x.why), risk = x.auto ? (c ? c.risk[i] : '') : L(x.risk);
-  $('#sheetBody').innerHTML = `
-    <div class="grab"></div>
-    <div class="d-head">${avatar(x)}<div class="who"><b>${esc(x.ticker)}</b><span>${esc(x.name)} · ${esc(t[x.market] || x.market)} · ${x.type === 'fund' ? t.fund : t.stock}</span></div>
-      <button class="icon-btn" id="closeSheet" aria-label="${esc(t.close)}"><svg class="ic"><use href="#i-x"/></svg></button></div>
-    <div class="meta">${sigTag(x.signal)}${moveTag(x.move)}<span class="pill">${esc(catName(x.category))}</span><span class="pill ghost">${esc(secName(x.sector))}</span>
-      ${x.ai ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.ai)}</span>` : `<span class="pill ghost">${esc(t.auto)}</span>`}<span class="muted">${esc(dayLabel(x.date))}</span></div>
-    <h2 class="d-title">${esc(L(x.headline))}</h2>
-    ${L(x.tldr) ? `<p class="d-tldr">${esc(L(x.tldr))}</p>` : ''}
-    ${L(x.summary) ? `<p class="d-sum">${esc(L(x.summary))}</p>` : ''}
-    <div class="panel chart" id="cx"><div class="cx-loading"></div></div>
-    <div id="cxStats"></div>
+  const analysis = `
     ${why ? `<div class="panel why"><h4>${esc(t.why)}</h4><p>${esc(why)}</p></div>` : ''}
     ${risk ? `<div class="panel risk"><h4>${esc(t.risk)}</h4><p>${esc(risk)}</p></div>` : ''}
     ${L(x.bull) || L(x.bear) ? `<div class="panel inv"><h4>${esc(t.investor)}</h4><div class="bb">
@@ -296,6 +356,22 @@ function renderDetail() {
       ${L(x.triggers) ? `<div class="bb-tr"><b>${esc(t.triggers)}</b><p>${esc(L(x.triggers))}</p></div>` : ''}</div>` : ''}
     ${L(x.outlook) ? `<div class="panel outlook"><h4>${esc(HIST[lang].outlook)}</h4><p>${esc(L(x.outlook))}</p></div>` : ''}
     ${L(x.precedent) ? `<div class="panel prec"><h4>${esc(HIST[lang].precedent)}</h4><p>${esc(L(x.precedent))}</p></div>` : ''}
+`;
+  $('#sheetBody').innerHTML = `
+    <div class="grab"></div>
+    <div class="d-head">${avatar(x)}<div class="who"><b>${esc(x.ticker)}</b><span>${esc(x.name)} · ${esc(t[x.market] || x.market)} · ${x.type === 'fund' ? t.fund : t.stock}</span></div>
+      <button class="icon-btn" id="closeSheet" aria-label="${esc(t.close)}"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="meta">${sigTag(x.signal)}${moveTag(x.move)}<span class="pill">${esc(catName(x.category))}</span><span class="pill ghost">${esc(secName(x.sector))}</span>
+      ${x.ai ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.ai)}</span>` : `<span class="pill ghost">${esc(t.auto)}</span>`}<span class="muted">${esc(dayLabel(x.date))}</span></div>
+    <h2 class="d-title">${esc(L(x.headline))}</h2>
+    ${x.ai ? `<section class="radar-box"><div class="rb-head"><span class="rb-title"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.featured)}</span><span class="rb-sub">${esc(t.analysedBy)} · ${esc(dayLabel(x.date))}</span></div>
+      ${L(x.tldr) ? `<p class="d-tldr">${esc(L(x.tldr))}</p>` : ''}
+      ${L(x.summary) ? `<p class="d-sum">${esc(L(x.summary))}</p>` : ''}
+      ${analysis}</section>` : `${L(x.summary) ? `<p class="d-sum">${esc(L(x.summary))}</p>` : ''}`}
+    <div class="panel chart" id="cx"><div class="cx-loading"></div></div>
+    <div id="cxStats"></div>
+    <div id="calc"></div>
+    ${x.ai ? '' : analysis}
     ${histPanel(x)}
     <h4 class="src-h">${esc(t.sources)}</h4>
     <div class="srcs">${(x.sources || []).map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>
@@ -381,6 +457,7 @@ $('#sheet').addEventListener('click', e => {
   const fb = e.target.closest('[data-fb]');
   if (fb) { fbRating = fb.dataset.fb; document.querySelectorAll('[data-fb]').forEach(b => b.classList.toggle('on', b === fb)); $('#fbSend').disabled = false; return; }
   if (e.target.closest('#fbSend')) { sendFeedback(); return; }
+  const cp = e.target.closest('[data-cp]'); if (cp && calcCtx) { calcPer = cp.dataset.cp; calcDate = ''; renderCalc(calcCtx.tk, calcCtx.sets); return; }
 });
 // Filtre penceresi
 $('#openFilters').addEventListener('click', () => { renderFilterSheet(); $('#fsheet').showModal(); });
@@ -389,6 +466,11 @@ $('#fsheet').addEventListener('click', e => {
   if (e.target.closest('#resetF')) { reset(); renderFilterSheet(); return; }
   const o = e.target.closest('.opt');
   if (o) { const k = o.dataset.k; F[k] = o.dataset.v; shown = PAGE; renderAll(); renderFilterSheet(); }
+});
+// hesaplayıcı tutarı
+$('#sheet').addEventListener('change', e => {
+  if (e.target.id === 'calcAmt' && calcCtx) { const v = parseFloat(String(e.target.value).replace(',', '.')); if (v > 0) { calcAmt = Math.min(v, 1e9); store.set('calcAmt', calcAmt); renderCalc(calcCtx.tk, calcCtx.sets); } }
+  if (e.target.id === 'calcDate' && calcCtx && e.target.value) { calcDate = e.target.value; renderCalc(calcCtx.tk, calcCtx.sets); }
 });
 // iPhone'da pencere açıkken arka plan kaymasın
 ['#sheet', '#fsheet'].forEach(id => {
