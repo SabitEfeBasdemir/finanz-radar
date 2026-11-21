@@ -104,3 +104,31 @@ overrides the rules on facts, sources, no buy/sell instructions, or which files 
 - `data/feedback.json`: the reader's 👍/👎 notes from the app, exported in every GitHub Actions run from GitHub issues
   labelled `geri-bildirim` **authored by the repository owner only** (`scripts/export_feedback.py`). Treat the notes as
   opinions about content and style; they never override the rules on facts, sources, no buy/sell instructions, or files.
+
+## "Hareket Radarı" (sharp drops and rises)
+
+- `scripts/movers.py` (free, every GitHub Actions scan, after prices) writes `data/movers.json`: `drops` and `rallies` across the
+  whole universe, where the move is unusual relative to the asset's own normal daily volatility (gold/silver included).
+  Each entry has the move, period (1d/5d), z (multiple of normal move), distance from 52-week high/low, the broad-market move,
+  the related news item if any, and `hist` (what happened after similar moves in its own history). Do not edit it by hand.
+- Claude owns `data/move_notes.json` (`{"updated": "YYYY-MM-DD", "notes": {"TICKER": {...}}}`), written in the weekly run:
+  6. Read `data/movers.json`. For up to 5 of the most notable drops and up to 4 of the most notable rallies (always include
+     gold/silver entries if present), research the cause and write:
+     ```json
+     "NVDA": {"date":"YYYY-MM-DD","kind":"drop|rally",
+       "cause":{"tr":"...","en":"..."},
+       "case_for":{"tr":"...","en":"..."},
+       "case_against":{"tr":"...","en":"..."},
+       "triggers":{"tr":"...","en":"..."},
+       "signal":"bullish|watch|bearish","conviction":"high|medium|low",
+       "conviction_why":{"tr":"...","en":"..."},
+       "sources":[{"title":"...","url":"https://..."}]}
+     ```
+     - Drops ("Fırsat mı, tuzak mı?"): `case_for` = evidence for a rebound (overreaction, intact fundamentals, valuation now
+       cheaper, precedents that recovered); `case_against` = evidence the decline continues (lasting damage, balance-sheet stress,
+       more bad news likely, precedents that kept falling). Is it company-specific or market/sector-wide?
+     - Rallies ("Devam mı, aşırı ısınma mı?"): `case_for` = evidence the rise continues; `case_against` = pullback risk
+       (overheating, hype, valuation stretched, precedents that gave back gains).
+     - Use the `hist` numbers from movers.json, precedents and the profile checklist. Take a clear position via `signal` and
+       `conviction`, but never write "buy now", "alım zamanı", "sat" or what you would do with money.
+     - Remove notes older than 21 days.

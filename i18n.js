@@ -236,6 +236,24 @@ Object.assign(I18N.tr, { coTitle: 'Şirketler ve fonlar', coNoNews: 'Son günler
   noNews: 'Bu aramayla eşleşen haber yok.', coNews: 'Son haberler', tracked: 'Takip listesi' });
 Object.assign(I18N.en, { coTitle: 'Companies and funds', coNoNews: 'No recent news about this company; price history and calculator below.',
   noNews: 'No news matches this search.', coNews: 'Recent news', tracked: 'Watchlist' });
+Object.assign(I18N.tr, { mvTitle: 'Hareket Radarı', mvSub: 'Kendi normal oynaklığına göre sert düşen ve yükselen şirket, fon, altın ve gümüş · her taramada',
+  mvDrops: 'Sert düşüşler', mvRallies: 'Sert yükselişler', mvMetals: 'Altın ve gümüş', mvD1: '1 günde', mvD5: '5 günde',
+  mvTimes: x => `normal günlük hareketinin ${x} katı`, mvMarket: v => `Piyasa geneli aynı dönemde ${v}`, mvNoNews: 'Bu harekete dair haber bulunamadı',
+  mvPast: (k, s) => k === 'drop' ? `Geçmişte benzer düşüşlerden 1 ay sonra: ${s}` : `Geçmişte benzer yükselişlerden 1 ay sonra: ${s}`,
+  mvUpOf: (u, n, a) => `${n} durumdan ${u}'inde yukarıda (ort. ${a})`, mvRare: 'Geçmişte benzeri yok denecek kadar az',
+  mvFromHigh: '52 hafta zirvesine uzaklık', mvFromLow: '52 hafta dibinden', mvQ: { drop: 'Fırsat mı, tuzak mı?', rally: 'Devam mı, aşırı ısınma mı?' },
+  mvFor: { drop: 'Toparlanma lehine', rally: 'Yükselişin sürmesi lehine' }, mvAgainst: { drop: 'Düşüşün sürmesi lehine', rally: 'Geri çekilme riski' },
+  mvAfter: 'Bu varlığın geçmişinde benzer hareketlerden sonra', mvW1: '1 hafta sonra', mvM1: '1 ay sonra', mvM3: '3 ay sonra',
+  mvHigherIn: (u, n) => `${n} durumdan ${u}'inde fiyat daha yüksekti`, mvClaude: 'Claude değerlendirmesi', mvAuto: 'Bu bölüm kurallarla otomatik hesaplanır; Claude değerlendirmesi Pazar günleri eklenir. Yatırım tavsiyesi değildir.' });
+Object.assign(I18N.en, { mvTitle: 'Movement Radar', mvSub: 'Companies, funds, gold and silver with unusually sharp drops or rises vs their own normal volatility · every scan',
+  mvDrops: 'Sharp drops', mvRallies: 'Sharp rises', mvMetals: 'Gold & silver', mvD1: 'in 1 day', mvD5: 'in 5 days',
+  mvTimes: x => `${x}× its normal daily move`, mvMarket: v => `Broad market over the same period: ${v}`, mvNoNews: 'No news found for this move',
+  mvPast: (k, s) => k === 'drop' ? `After similar drops, 1 month later: ${s}` : `After similar rises, 1 month later: ${s}`,
+  mvUpOf: (u, n, a) => `higher in ${u} of ${n} (avg ${a})`, mvRare: 'Hardly any similar moves in its history',
+  mvFromHigh: 'From 52-week high', mvFromLow: 'From 52-week low', mvQ: { drop: 'Opportunity or trap?', rally: 'Continuation or overheating?' },
+  mvFor: { drop: 'Case for a rebound', rally: 'Case for the rise continuing' }, mvAgainst: { drop: 'Case for further decline', rally: 'Pullback risk' },
+  mvAfter: 'After similar moves in this asset’s history', mvW1: '1 week later', mvM1: '1 month later', mvM3: '3 months later',
+  mvHigherIn: (u, n) => `higher in ${u} of ${n} cases`, mvClaude: 'Claude’s assessment', mvAuto: 'This section is calculated automatically by rules; Claude’s assessment is added on Sundays. Not investment advice.' });
 Object.assign(I18N.en, { full: 'Full screen', exitFull: 'Exit full screen',
   a2hs: 'For full screen: tap the Share button in Safari, then “Add to Home Screen”. It opens like an app, without browser bars.' });
 Object.assign(I18N.en, {

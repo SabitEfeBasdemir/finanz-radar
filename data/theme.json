@@ -22,6 +22,7 @@
  "feedCol": 260,
  "order": [
   "search",
+  "moves",
   "sectors",
   "pot",
   "radar",

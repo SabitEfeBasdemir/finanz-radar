@@ -3,7 +3,7 @@
 const Theme = (() => {
   const COLORS = ['bg', 'card', 'card2', 'line', 'tx', 'mut', 'accent', 'up', 'dn', 'wt'];
   // Sayfadaki bölümler: kimlik -> CSS seçicisi
-  const SECTIONS = { pot: '#potBlock', search: '#sticky', mood: '#mood', sectors: '#secBlock', radar: '#featBlock', feed: '#list' };
+  const SECTIONS = { pot: '#potBlock', search: '#sticky', moves: '#moveBlock', mood: '#mood', sectors: '#secBlock', radar: '#featBlock', feed: '#list' };
   const FONTS = {
     system: { css: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif' },
     inter: { css: '"Inter", system-ui, sans-serif', url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' },
@@ -22,13 +22,16 @@ const Theme = (() => {
   const DEF = {
     version: 1, preset: 'navy', colors: { ...PRESETS.navy.colors },
     font: 'system', size: 15, radius: 16, gap: 12, cardPad: 14, maxWidth: 0, feedCol: 340,
-    order: ['pot', 'search', 'mood', 'sectors', 'radar', 'feed'], hidden: [],
+    order: ['pot', 'search', 'moves', 'mood', 'sectors', 'radar', 'feed'], hidden: [],
   };
   const norm = t => {
     const o = { ...DEF, ...(t || {}) };
     o.colors = { ...DEF.colors, ...((t || {}).colors || {}) };
     const known = Object.keys(SECTIONS);
-    o.order = [...(o.order || []).filter(k => known.includes(k)), ...known.filter(k => !(o.order || []).includes(k))];
+    // kayıtlı sırada olmayan yeni bölümler, varsayılan sıradaki yerlerine eklenir
+    const ord = (o.order || []).filter(k => known.includes(k));
+    for (const k of DEF.order) if (!ord.includes(k)) { const i = DEF.order.indexOf(k), prev = DEF.order.slice(0, i).reverse().find(x => ord.includes(x)); ord.splice(prev ? ord.indexOf(prev) + 1 : 0, 0, k); }
+    o.order = ord;
     o.hidden = (o.hidden || []).filter(k => known.includes(k) && k !== 'feed');
     return o;
   };

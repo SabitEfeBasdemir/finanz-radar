@@ -67,6 +67,9 @@ jobs:
       - name: Fiyatlar
         if: steps.guard.outputs.skip != 'true'
         run: python scripts/update_prices.py
+      - name: Hareket Radarı (sert düşüş/yükseliş)
+        if: steps.guard.outputs.skip != 'true'
+        run: python scripts/movers.py
       - name: Potansiyeli olan şirketler
         if: steps.guard.outputs.skip != 'true'
         run: python scripts/potential.py

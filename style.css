@@ -420,3 +420,23 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .co .who { flex: 1; min-width: 0 }
 .co-r { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; flex-shrink: 0 }
 .co-r i { font-style: normal; color: var(--mut); font-size: 11px }
+
+/* Hareket Radarı */
+.ic.pl { color: #f472b6 }
+.mv-tabs { display: flex; margin-bottom: 10px; overflow-x: auto; max-width: 100%; scrollbar-width: none }
+.mv-tabs::-webkit-scrollbar { display: none }
+.mv-tabs button { flex: 0 0 auto }
+.mcard { flex: 0 0 min(290px, 80%); scroll-snap-align: start; cursor: pointer; display: flex; flex-direction: column; gap: 8px; padding: var(--cardpad, 14px); border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); transition: transform .12s }
+.mcard.drop { background: linear-gradient(160deg, color-mix(in srgb, var(--dn) 13%, var(--card)), var(--card) 60%); border-color: color-mix(in srgb, var(--dn) 35%, var(--line)) }
+.mcard.rally { background: linear-gradient(160deg, color-mix(in srgb, var(--up) 13%, var(--card)), var(--card) 60%); border-color: color-mix(in srgb, var(--up) 35%, var(--line)) }
+.mcard:active { transform: scale(.98) }
+.mcard .fc-top .spark { margin-left: auto }
+.m-big { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px }
+.m-big b { font-size: 24px; letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.m-big span { color: var(--mut); font-size: 12px; font-weight: 600 }
+.mcard p { margin: 0; font-size: 13px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden }
+.mcard .m-past { color: var(--mut); font-size: 12px; -webkit-line-clamp: 2 }
+.mcard .meta { margin-top: auto }
+.mvp.drop { border-left: 3px solid var(--dn) } .mvp.rally { border-left: 3px solid var(--up) }
+.mvp .bb { display: grid; grid-template-columns: 1fr; gap: 10px } @media (min-width: 560px) { .mvp .bb { grid-template-columns: 1fr 1fr } }

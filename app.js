@@ -17,7 +17,7 @@ let lang = (() => {
 })();
 
 // Uygulama durumu
-let items = [], prices = {}, sectors = [], updated = '', potential = [], potNotes = {};
+let items = [], prices = {}, sectors = [], updated = '', potential = [], potNotes = {}, movers = { drops: [], rallies: [] }, moveNotes = {}, mvTab = 'drops';
 const F = { q: '', signal: '', market: '', source: '', type: '', category: '', sector: '' };
 const PAGE = 40;
 let shown = PAGE, view = [];
@@ -46,17 +46,20 @@ function dayLabel(d) {
 // ---------- Veri ----------
 async function load() {
   $('#list').innerHTML = Array.from({ length: 4 }, () => '<div class="card skel"><div></div><div></div><div></div></div>').join('');
-  let pot, notes;
+  let pot, notes, mv, mvn;
   const [i, p, s] = await Promise.all([
     fetch('data/insights.json', { cache: 'no-cache' }).then(r => r.json()),
     fetch('data/prices.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ tickers: {} })),
     fetch('data/sectors.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ sectors: [] })),
     fetch('data/potential.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ companies: [] })),
     fetch('data/potential_notes.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ notes: {} })),
-  ]).then(r => { [, , , pot, notes] = r; return r; });
+    fetch('data/movers.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ drops: [], rallies: [] })),
+    fetch('data/move_notes.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ notes: {} })),
+  ]).then(r => { [, , , pot, notes, mv, mvn] = r; return r; });
   items = (i.items || []).sort((a, b) => (b.date || '').localeCompare(a.date || '') || (!!b.ai - !!a.ai) || Math.abs(b.move || 0) - Math.abs(a.move || 0));
   prices = p.tickers || {}; sectors = s.sectors || []; updated = i.updated || '';
   potential = pot.companies || []; potNotes = notes.notes || {};
+  movers = mv || { drops: [], rallies: [] }; moveNotes = mvn.notes || {};
   applyLang();
 }
 
@@ -96,7 +99,7 @@ function applyLang() {
   renderAll();
 }
 
-function renderAll() { renderControls(); renderPotential(); renderMood(); renderSectors(); renderFeatured(); render(); }
+function renderAll() { renderControls(); renderPotential(); renderMoves(); renderMood(); renderSectors(); renderFeatured(); render(); }
 
 // ---------- Potansiyeli olan şirketler ----------
 function miniSpark(v) {
@@ -162,11 +165,64 @@ function companyMatches(q) {
   return out.sort((a, b) => b[0] - a[0] || a[1].ticker.length - b[1].ticker.length).slice(0, 8).map(x => x[1]);
 }
 
+// ---------- Hareket Radarı ----------
+const mvList = () => mvTab === 'metals' ? [...movers.drops, ...movers.rallies].filter(r => r.sector === 'metals').sort((a, b) => b.z - a.z)
+  : (movers[mvTab] || []);
+const findMove = tk => [...(movers.drops || []), ...(movers.rallies || [])].find(r => r.ticker === tk);
+function pastLine(r) {
+  const t = T(), m = r.hist && r.hist.m1;
+  return m && m.n >= 2 ? t.mvPast(r.kind, t.mvUpOf(m.up, m.n, pct(m.avg))) : t.mvRare;
+}
+function renderMoves() {
+  const t = T();
+  $('#mvTitle').textContent = t.mvTitle; $('#mvSub').textContent = t.mvSub;
+  const nd = (movers.drops || []).length, nr = (movers.rallies || []).length, nm = [...(movers.drops || []), ...(movers.rallies || [])].filter(r => r.sector === 'metals').length;
+  $('#moveBlock').hidden = !(nd + nr);
+  if (!(nd + nr)) return;
+  if (mvTab === 'metals' && !nm) mvTab = 'drops';
+  $('#mvTabs').innerHTML = [['drops', `▼ ${t.mvDrops} · ${nd}`], ['rallies', `▲ ${t.mvRallies} · ${nr}`], ...(nm ? [['metals', `◆ ${t.mvMetals} · ${nm}`]] : [])]
+    .map(([k, l]) => `<button data-mvtab="${k}" class="${mvTab === k ? 'on' : ''}">${esc(l)}</button>`).join('');
+  $('#moves').innerHTML = mvList().filter(r => !F.market || r.market === F.market).map(r => {
+    const note = moveNotes[r.ticker], h = r.news && L(r.news.headline);
+    return `<article class="mcard ${r.kind}" data-mv="${esc(r.ticker)}" tabindex="0">
+      <div class="fc-top">${avatar(r)}<div class="who"><b>${esc(r.ticker)}</b><span>${esc(r.name)}</span></div>${miniSpark(r.spark)}</div>
+      <div class="m-big"><b class="${r.move >= 0 ? 'up' : 'dn'}">${pct(r.move)}</b><span>${esc(r.period === '5d' ? t.mvD5 : t.mvD1)} · ${esc(t.mvTimes(num(r.z, 0)))}</span></div>
+      <p>${h ? esc(h) : `<i class="muted">${esc(t.mvNoNews)}</i>`}</p>
+      <p class="m-past">${esc(pastLine(r))}</p>
+      <div class="meta">${r.market_move != null ? `<span class="pill ghost">${esc(t.mvMarket(pct(r.market_move)))}</span>` : ''}
+        ${note ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.radarShort)}</span>` : ''}</div>
+    </article>`;
+  }).join('');
+}
+// Detayda "Fırsat mı, tuzak mı?" / "Devam mı, aşırı ısınma mı?" paneli
+function movePanel(r) {
+  const t = T(), note = moveNotes[r.ticker], H = r.hist || {};
+  const meter = (label, s) => s && s.n ? `<div class="meter"><div class="m-top"><span>${esc(label)}</span><b class="${s.avg >= 0 ? 'up' : 'dn'}">${pct(s.avg)}</b></div>
+    <u class="m-bar"><u style="width:${Math.round(s.up / s.n * 100)}%"></u></u><div class="m-sub">${esc(t.mvHigherIn(s.up, s.n))}</div></div>` : '';
+  return `<div class="panel mvp ${r.kind}"><h4>${esc(t.mvQ[r.kind])}</h4>
+    <div class="m-big"><b class="${r.move >= 0 ? 'up' : 'dn'}">${pct(r.move)}</b><span>${esc(r.period === '5d' ? t.mvD5 : t.mvD1)} · ${esc(t.mvTimes(num(r.z, 0)))}</span></div>
+    <div class="stats two" style="margin:8px 0">
+      <div class="stat"><span>${esc(t.mvFromHigh)}</span><b class="dn">${pct(r.from_high)}</b></div>
+      <div class="stat"><span>${esc(t.mvFromLow)}</span><b class="up">${pct(r.from_low)}</b></div></div>
+    ${r.market_move != null ? `<p class="h-txt">${esc(t.mvMarket(pct(r.market_move)))}</p>` : ''}
+    ${r.news ? `<p class="h-txt"><b>${esc(L(r.news.headline))}</b></p>` : `<p class="muted">${esc(t.mvNoNews)}</p>`}
+    ${H.n >= 2 ? `<h4 style="margin-top:12px">${esc(t.mvAfter)} (${H.n})</h4>${meter(t.mvW1, H.w1)}${meter(t.mvM1, H.m1)}${meter(t.mvM3, H.m3)}` : `<p class="muted">${esc(t.mvRare)}</p>`}
+    ${note ? `<div class="radar-box" style="margin-top:12px"><div class="rb-head"><span class="rb-title"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.mvClaude)}</span><span class="rb-sub">${esc(dayLabel(note.date))}</span></div>
+      ${note.signal || note.conviction ? `<div class="conv-box"><div class="conv-top">${note.signal ? sigTag(note.signal) : ''}${convTag(note.conviction)}</div>${L(note.conviction_why) ? `<p>${esc(L(note.conviction_why))}</p>` : ''}</div>` : ''}
+      ${L(note.cause) ? `<p class="d-sum">${esc(L(note.cause))}</p>` : ''}
+      <div class="bb">${L(note.case_for) ? `<div class="bb-up"><b>▲ ${esc(t.mvFor[r.kind])}</b><p>${esc(L(note.case_for))}</p></div>` : ''}
+        ${L(note.case_against) ? `<div class="bb-dn"><b>▼ ${esc(t.mvAgainst[r.kind])}</b><p>${esc(L(note.case_against))}</p></div>` : ''}</div>
+      ${L(note.triggers) ? `<div class="bb-tr"><b>${esc(t.triggers)}</b><p>${esc(L(note.triggers))}</p></div>` : ''}
+      ${(note.sources || []).length ? `<div class="srcs" style="margin-top:10px">${note.sources.map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>` : ''}</div>` : ''}
+    <p class="h-note">${esc(t.mvAuto)}</p></div>`;
+}
+
 let potOpen = null, coOpen = null;
 // Haberi olmayan şirket/fon sayfası: grafik, istatistik, hesaplayıcı ve varsa son haberler
 function openCompany(tk) {
-  if (potential.some(p => p.ticker === tk)) return openPotential(tk);
-  const c = (uni || []).find(x => x.ticker === tk) || items.find(x => x.ticker === tk); if (!c) return;
+  const mvr = findMove(tk);
+  if (!mvr && potential.some(p => p.ticker === tk)) return openPotential(tk);
+  const c = (uni || []).find(x => x.ticker === tk) || mvr || items.find(x => x.ticker === tk); if (!c) return;
   const t = T(), related = items.filter(x => x.ticker === tk).slice(0, 8);
   coOpen = tk; potOpen = null;
   detailItem = { ticker: tk, date: related[0]?.date || null };
@@ -175,6 +231,7 @@ function openCompany(tk) {
     <div class="d-head">${avatar(c)}<div class="who"><b>${esc(tk)}</b><span>${esc(c.name)} · ${esc(t[c.market] || c.market || '')}${c.index ? ' · ' + esc(c.index === 'Takip listesi' ? t.tracked : c.index) : ''}</span></div>
       <button class="icon-btn" id="closeSheet" aria-label="${esc(t.close)}"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <div class="meta" style="margin-top:12px"><span class="pill">${esc(secName(c.sector))}</span><span class="pill ghost">${(c.type || 'stock') === 'fund' ? esc(t.fund) : esc(t.stock)}</span></div>
+    ${mvr ? movePanel(mvr) : ''}
     <div class="panel chart" id="cx" style="margin-top:12px"><div class="cx-loading"></div></div>
     <div id="cxStats"></div>
     <div id="calc"></div>
@@ -509,6 +566,8 @@ document.addEventListener('click', e => {
   if (b && !b.closest('#fsheet')) { setF(b.dataset.k, b.dataset.v); return; }
   const pc = e.target.closest('.pcard'); if (pc) { openPotential(pc.dataset.pot); return; }
   const co = e.target.closest('[data-co]'); if (co) { openCompany(co.dataset.co); return; }
+  const mt = e.target.closest('[data-mvtab]'); if (mt) { mvTab = mt.dataset.mvtab; renderMoves(); $('#moves').scrollLeft = 0; return; }
+  const mc = e.target.closest('.mcard'); if (mc) { loadUni().then(() => openCompany(mc.dataset.mv)); return; }
   const c = e.target.closest('.card, .fcard');
   if (c) { openDetail(c.dataset.id); return; }
   if (e.target.closest('#more')) { shown += PAGE; render(); return; }
