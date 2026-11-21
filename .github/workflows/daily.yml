@@ -14,6 +14,7 @@ on:
   workflow_dispatch: {}
 permissions:
   contents: write
+  issues: read
 concurrency:
   group: daily
   cancel-in-progress: false
@@ -45,6 +46,15 @@ jobs:
             pip install --quiet pandas lxml
             python scripts/build_universe.py
           fi
+      - name: Geri bildirimler (yalnızca repo sahibinin notları)
+        if: steps.guard.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --repo "${{ github.repository }}" --label geri-bildirim --state all \
+            --author "${{ github.repository_owner }}" --limit 100 --json number,title,body,createdAt > fb.json || echo '[]' > fb.json
+          python scripts/export_feedback.py fb.json
+          rm -f fb.json
       - name: Sektör sıralaması
         if: steps.guard.outputs.skip != 'true'
         run: python scripts/update_sectors.py

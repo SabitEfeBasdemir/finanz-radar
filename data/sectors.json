@@ -210,6 +210,25 @@
    "score": -17.1,
    "rank": 11,
    "active": false
+  },
+  {
+   "key": "metals",
+   "name": "Altın ve gümüş",
+   "etf_us": "GLD",
+   "etf_eu": "4GLD.DE",
+   "us": {
+    "m1": -12.5,
+    "m3": -24.3,
+    "y1": -13.7
+   },
+   "eu": {
+    "m1": -10.8,
+    "m3": -19.0,
+    "y1": -8.4
+   },
+   "score": -21.6,
+   "rank": 12,
+   "active": true
   }
  ]
 }

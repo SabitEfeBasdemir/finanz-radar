@@ -7,6 +7,7 @@ Kullanım: python3 scripts/update_sectors.py"""
 import json, pathlib, sys, time, urllib.request, datetime
 
 TOP_N = 10
+ALWAYS = {"metals"}   # sıralamadan bağımsız her zaman taranan sektörler
 SECTORS = [
     ("tech", "Teknoloji", "XLK", "EXV3.DE"),
     ("health", "Sağlık", "XLV", "EXV4.DE"),
@@ -19,6 +20,7 @@ SECTORS = [
     ("materials", "Hammadde ve kimya", "XLB", "EXV6.DE"),
     ("utilities", "Kamu hizmetleri", "XLU", "EXH9.DE"),
     ("realestate", "Gayrimenkul", "XLRE", "EXI5.DE"),
+    ("metals", "Altın ve gümüş", "GLD", "4GLD.DE"),
 ]
 
 root = pathlib.Path(__file__).resolve().parent.parent
@@ -58,7 +60,7 @@ for key, name, us, eu in SECTORS:
 out.sort(key=lambda r: (r["score"] is None, -(r["score"] or 0)))
 for i, r in enumerate(out):
     r["rank"] = i + 1
-    r["active"] = i < TOP_N
+    r["active"] = i < TOP_N or r["key"] in ALWAYS
 
 (root / "data/sectors.json").write_text(json.dumps(
     {"updated": datetime.date.today().isoformat(), "basis": "ABD + Avrupa sektör fonlarının 3 aylık ortalama getirisi",

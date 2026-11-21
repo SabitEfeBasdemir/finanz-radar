@@ -336,3 +336,17 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .steps li::marker { color: var(--accent); font-weight: 700 }
 #isheet { max-width: 480px }
 @media (min-width: 720px) { #isheet { max-width: 480px } }
+
+/* Yatırımcı gözüyle + geri bildirim */
+.d-tldr { font-size: 16px; font-weight: 650; line-height: 1.45; margin: 0 0 8px; padding: 10px 12px; border-radius: 12px; background: var(--accent-soft); border-left: 3px solid var(--accent); overflow-wrap: anywhere }
+.inv .bb { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 6px }
+@media (min-width: 560px) { .inv .bb { grid-template-columns: 1fr 1fr } }
+.bb-up, .bb-dn, .bb-tr { border-radius: 10px; padding: 10px 12px; background: var(--card2) }
+.bb-up b { color: var(--up) } .bb-dn b { color: var(--dn) } .bb-tr b { color: var(--wt) }
+.bb-up b, .bb-dn b, .bb-tr b { font-size: 13px; display: block; margin-bottom: 4px }
+.bb-tr { margin-top: 10px }
+.fb .fb-btns { display: flex; gap: 8px; margin: 8px 0 }
+.fb textarea { width: 100%; background: var(--card2); color: var(--tx); border: 1px solid var(--line); border-radius: 10px; padding: 10px; font: inherit; font-size: 14px; resize: vertical }
+.fb textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px }
+.fb .btn { width: 100%; margin-top: 8px }
+.fb .btn:disabled { opacity: .45 }

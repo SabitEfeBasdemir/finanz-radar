@@ -53,6 +53,7 @@ const SECTOR_NAMES = {
   materials: ['Hammadde ve kimya', 'Rohstoffe & Chemie', 'Materials & chemicals'],
   utilities: ['Kamu hizmetleri', 'Versorger', 'Utilities'],
   realestate: ['Gayrimenkul', 'Immobilien', 'Real estate'],
+  metals: ['Altın ve gümüş', 'Gold & Silber', 'Gold & silver'],
 };
 
 // Kategori adı + otomatik kayıtlar için "neden önemli" ve "risk" açıklamaları.
@@ -211,6 +212,12 @@ Object.assign(I18N.en, { install: 'Install app', installTitle: 'Install on your 
   installSafari: ['In the Safari menu bar, click “File”.', 'Choose “Add to Dock…”.', 'Click “Add”. Investment Radar opens from the Dock in its own window.'],
   installNote: 'This option exists on macOS Sonoma (14) and later. In Chrome or Edge you can also click the install icon in the address bar.',
   installed: 'Installed' });
+Object.assign(I18N.tr, { investor: 'Yatırımcı gözüyle (12 ay+)', bull: 'Olumlu senaryo', bear: 'Olumsuz senaryo', triggers: 'Görüşü ne değiştirir?',
+  fbTitle: 'Bu analiz nasıldı?', fbUp: 'Beğendim', fbDown: 'Beğenmedim', fbNote: 'Kısa not (isteğe bağlı): neyi daha çok / az istersin?',
+  fbSend: 'GitHub’da gönder', fbHelp: 'Notun GitHub’da kaydedilir; Claude her hafta okuyup analizlerini senin tercihine göre ayarlar. Göndermek için GitHub hesabınla giriş yapmış olman gerekir.' });
+Object.assign(I18N.en, { investor: 'Investor view (12m+)', bull: 'Upside scenario', bear: 'Downside scenario', triggers: 'What would change the view?',
+  fbTitle: 'How was this analysis?', fbUp: 'Liked it', fbDown: 'Didn’t like it', fbNote: 'Short note (optional): what do you want more or less of?',
+  fbSend: 'Send on GitHub', fbHelp: 'Your note is saved on GitHub; Claude reads it every week and adjusts its analyses to your preferences. You need to be signed in to GitHub to send it.' });
 Object.assign(I18N.en, { full: 'Full screen', exitFull: 'Exit full screen',
   a2hs: 'For full screen: tap the Share button in Safari, then “Add to Home Screen”. It opens like an app, without browser bars.' });
 Object.assign(I18N.en, {

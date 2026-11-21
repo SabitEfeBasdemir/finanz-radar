@@ -24,7 +24,7 @@ const secName = k => SECTOR_NAMES[k] ? SECTOR_NAMES[k][LI[lang]] : (k || '');
 const catName = k => CATS[k] ? CATS[k].name[LI[lang]] : (k || '');
 const num = (v, d = 1) => v.toLocaleString(lang, { maximumFractionDigits: d, minimumFractionDigits: d });
 const pct = v => v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + num(Math.abs(v)) + '%';
-const SECTOR_HUE = { tech: 215, health: 160, energy: 30, finance: 260, industrials: 200, discretionary: 330, staples: 90, communication: 285, materials: 45, utilities: 185, realestate: 10 };
+const SECTOR_HUE = { tech: 215, health: 160, energy: 30, finance: 260, industrials: 200, discretionary: 330, staples: 90, communication: 285, materials: 45, utilities: 185, realestate: 10, metals: 50 };
 const SIG_ICON = { bullish: '▲', watch: '●', bearish: '▼' };
 
 function dayLabel(d) {
@@ -284,16 +284,45 @@ function renderDetail() {
     <div class="meta">${sigTag(x.signal)}${moveTag(x.move)}<span class="pill">${esc(catName(x.category))}</span><span class="pill ghost">${esc(secName(x.sector))}</span>
       ${x.ai ? `<span class="pill ai"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.ai)}</span>` : `<span class="pill ghost">${esc(t.auto)}</span>`}<span class="muted">${esc(dayLabel(x.date))}</span></div>
     <h2 class="d-title">${esc(L(x.headline))}</h2>
+    ${L(x.tldr) ? `<p class="d-tldr">${esc(L(x.tldr))}</p>` : ''}
     ${L(x.summary) ? `<p class="d-sum">${esc(L(x.summary))}</p>` : ''}
     <div class="panel chart" id="cx"><div class="cx-loading"></div></div>
     <div id="cxStats"></div>
     ${why ? `<div class="panel why"><h4>${esc(t.why)}</h4><p>${esc(why)}</p></div>` : ''}
     ${risk ? `<div class="panel risk"><h4>${esc(t.risk)}</h4><p>${esc(risk)}</p></div>` : ''}
+    ${L(x.bull) || L(x.bear) ? `<div class="panel inv"><h4>${esc(t.investor)}</h4><div class="bb">
+      ${L(x.bull) ? `<div class="bb-up"><b>▲ ${esc(t.bull)}</b><p>${esc(L(x.bull))}</p></div>` : ''}
+      ${L(x.bear) ? `<div class="bb-dn"><b>▼ ${esc(t.bear)}</b><p>${esc(L(x.bear))}</p></div>` : ''}</div>
+      ${L(x.triggers) ? `<div class="bb-tr"><b>${esc(t.triggers)}</b><p>${esc(L(x.triggers))}</p></div>` : ''}</div>` : ''}
     ${L(x.outlook) ? `<div class="panel outlook"><h4>${esc(HIST[lang].outlook)}</h4><p>${esc(L(x.outlook))}</p></div>` : ''}
     ${L(x.precedent) ? `<div class="panel prec"><h4>${esc(HIST[lang].precedent)}</h4><p>${esc(L(x.precedent))}</p></div>` : ''}
     ${histPanel(x)}
     <h4 class="src-h">${esc(t.sources)}</h4>
-    <div class="srcs">${(x.sources || []).map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>`;
+    <div class="srcs">${(x.sources || []).map(s => `<a class="src" href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener"><span>${esc(s.title)}</span><svg class="ic"><use href="#i-ext"/></svg></a>`).join('')}</div>
+    ${x.ai ? feedbackBox() : ''}`;
+}
+
+// ---------- Geri bildirim (Claude analizleri için) ----------
+// Not GitHub'da "geri-bildirim" etiketli bir issue olarak kaydedilir; GitHub Actions sadece repo sahibinin
+// notlarını data/feedback.json'a aktarır, Claude haftalık analizde bunları okur.
+const REPO = 'SabitEfeBasdemir/finanz-radar';
+let fbRating = '';
+function feedbackBox() {
+  const t = T(); fbRating = '';
+  return `<div class="panel fb"><h4>${esc(t.fbTitle)}</h4>
+    <div class="fb-btns"><button class="opt" data-fb="up">👍 ${esc(t.fbUp)}</button><button class="opt" data-fb="down">👎 ${esc(t.fbDown)}</button></div>
+    <textarea id="fbNote" rows="3" placeholder="${esc(t.fbNote)}"></textarea>
+    <button class="btn primary" id="fbSend" disabled>${esc(t.fbSend)}</button>
+    <p class="h-note">${esc(t.fbHelp)}</p></div>`;
+}
+function sendFeedback() {
+  const x = detailItem; if (!x || !fbRating) return;
+  const note = ($('#fbNote')?.value || '').trim().slice(0, 1500);
+  const head = L(x.headline).slice(0, 90);
+  const title = `${fbRating === 'up' ? '👍' : '👎'} ${x.ticker} – ${head} (${x.date})`;
+  const body = `**Analiz:** ${x.ticker} – ${L(x.headline)} (${x.date})\n**Değerlendirme:** ${fbRating === 'up' ? 'beğendim' : 'beğenmedim'}\n**Not:** ${note || '-'}\n\n<!-- item: ${itemKey(x)} -->`;
+  const url = `https://github.com/${REPO}/issues/new?labels=geri-bildirim&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  window.open(url, '_blank', 'noopener');
 }
 function openDetail(id) {
   potOpen = null;
@@ -349,6 +378,9 @@ $('#qx').addEventListener('click', () => { $('#q').value = ''; $('#qx').hidden =
 // Detay penceresi
 $('#sheet').addEventListener('click', e => {
   if (e.target === $('#sheet') || e.target.closest('#closeSheet')) { $('#sheet').close(); return; }
+  const fb = e.target.closest('[data-fb]');
+  if (fb) { fbRating = fb.dataset.fb; document.querySelectorAll('[data-fb]').forEach(b => b.classList.toggle('on', b === fb)); $('#fbSend').disabled = false; return; }
+  if (e.target.closest('#fbSend')) { sendFeedback(); return; }
 });
 // Filtre penceresi
 $('#openFilters').addEventListener('click', () => { renderFilterSheet(); $('#fsheet').showModal(); });

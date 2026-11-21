@@ -142,7 +142,7 @@ def main():
             host = urllib.parse.urlparse(n["url"]).netloc.replace("www.", "")
             cand.append((score, {
                 "id": hashlib.sha1(n["url"].encode()).hexdigest()[:12], "auto": True,
-                "ticker": sym, "name": c["name"], "market": c["market"], "type": "stock", "sector": c["sector"],
+                "ticker": sym, "name": c["name"], "market": c["market"], "type": c.get("type", "stock"), "sector": c["sector"],
                 "signal": signal(n["title"] + " " + n["desc"], m), "category": cat, "date": n["date"], "move": m,
                 "headline": n["title"], "summary": n["desc"][:280],
                 "sources": [{"title": host, "url": n["url"]}]}))
