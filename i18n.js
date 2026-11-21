@@ -232,6 +232,10 @@ Object.assign(I18N.en, { radarShort: 'Radar', weekly: 'Weekly · Claude', analys
   calcNote: 'In euros, using the actual exchange rate on both dates. Excludes dividends, taxes and fees. Past returns do not predict the future.' });
 Object.assign(I18N.tr, { conv: 'İkna derecesi', convL: { high: 'Yüksek', medium: 'Orta', low: 'Düşük' } });
 Object.assign(I18N.en, { conv: 'Conviction', convL: { high: 'High', medium: 'Medium', low: 'Low' } });
+Object.assign(I18N.tr, { coTitle: 'Şirketler ve fonlar', coNoNews: 'Son günlerde bu şirketle ilgili haber yok; fiyat geçmişi ve hesaplayıcı aşağıda.',
+  noNews: 'Bu aramayla eşleşen haber yok.', coNews: 'Son haberler', tracked: 'Takip listesi' });
+Object.assign(I18N.en, { coTitle: 'Companies and funds', coNoNews: 'No recent news about this company; price history and calculator below.',
+  noNews: 'No news matches this search.', coNews: 'Recent news', tracked: 'Watchlist' });
 Object.assign(I18N.en, { full: 'Full screen', exitFull: 'Exit full screen',
   a2hs: 'For full screen: tap the Share button in Safari, then “Add to Home Screen”. It opens like an app, without browser bars.' });
 Object.assign(I18N.en, {

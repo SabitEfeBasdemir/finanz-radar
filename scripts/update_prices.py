@@ -117,10 +117,16 @@ def main():
         syms |= {l.strip() for l in wl.read_text().splitlines() if l.strip() and not l.startswith("#")}
     # Avro kurları: "1.000 € yatırsaydın" hesabı için (hisse para birimi -> EUR, her iki tarihteki kurla)
     syms |= {"EURUSD=X", "EURGBP=X", "EURCHF=X", "EURSEK=X", "EURDKK=X", "EURNOK=X"}
-    data = fetch(sorted(syms))
+    # Takip edilen bütün şirket ve fonlar: haberi olmasa da aramada açılabilsin (günlük + tarihsel grafik, hesaplayıcı)
+    try:
+        uni = {c["ticker"] for c in json.loads((root / "data/universe.json").read_text())["companies"]}
+    except Exception:
+        uni = set()
+    all_syms = syms | uni
+    data = fetch(sorted(all_syms))
 
-    # Kartlardaki mini grafikler için son 30 işlem günü tek dosyada (hızlı yükleme)
-    prices = {s: {"history": [[d, round(x, 2)] for d, x in h[-30:]]} for s, h in data.items()}
+    # Kartlardaki mini grafikler için son 30 işlem günü tek dosyada (hızlı yükleme) — sadece haberi olanlar
+    prices = {s: {"history": [[d, round(x, 2)] for d, x in h[-30:]]} for s, h in data.items() if s in syms}
     (root / "data/prices.json").write_text(json.dumps({"updated": datetime.date.today().isoformat(), "tickers": prices}, separators=(",", ":")))
     # Detay grafiği için her sembolün 2 yıllık kapanışları ayrı dosyada: data/p/<SEMBOL>.csv
     # (satır başına bir gün; git yalnızca eklenen son satırları saklar, depo şişmez)
@@ -129,7 +135,7 @@ def main():
     for s, h in data.items():
         (pdir / f"{s}.csv").write_text("date,close\n" + "".join(f"{d},{round(x, 4)}\n" for d, x in h))
     for f in pdir.glob("*.csv"):
-        if f.stem not in data and f.stem not in syms:
+        if f.stem not in data and f.stem not in all_syms:
             f.unlink()
 
     # Gün içi (son 5 işlem günü, 15 dk) — her taramada
@@ -140,8 +146,8 @@ def main():
     today = datetime.date.today().isoformat()
     mdir = root / "data/m"
     mdir.mkdir(exist_ok=True)
-    need = sorted(syms) if not stamp.exists() or stamp.read_text().strip() != today else \
-        sorted(s for s in syms if not (mdir / f"{s}.csv").exists())
+    need = sorted(all_syms) if not stamp.exists() or stamp.read_text().strip() != today else \
+        sorted(s for s in all_syms if not (mdir / f"{s}.csv").exists())
     if need:
         mx = spark(need, "max", "1mo")
         for s, h in mx.items():
@@ -149,7 +155,7 @@ def main():
                 f"{datetime.datetime.fromtimestamp(t, datetime.timezone.utc).date().isoformat()},{round(c, 4)}\n" for t, c in h))
         stamp.write_text(today)
     for f in mdir.glob("*.csv"):
-        if f.stem not in syms:
+        if f.stem not in all_syms:
             f.unlink()
     print(f"gün içi {len(intra)} sembol, tarihsel {len(need)} sembol yenilendi")
 
@@ -163,7 +169,7 @@ def main():
         it.update(analyse(it, h))
         n += "hist" in it
     path.write_text(json.dumps(ins, ensure_ascii=False, separators=(",", ":")))
-    print(f"{len(data)} / {len(syms)} sembol, {n} kayıtta geçmiş tepki istatistiği")
+    print(f"{len(data)} / {len(all_syms)} sembol (haberli {len(syms)}), {n} kayıtta geçmiş tepki istatistiği")
 
 
 if __name__ == "__main__":

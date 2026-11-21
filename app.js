@@ -125,10 +125,67 @@ function renderPotential() {
     </article>`;
   }).join('');
 }
-let potOpen = null;
+// ---------- Arama: yazım hatasına dayanıklı ("nvdia" -> NVIDIA) ----------
+const fold = s => String(s ?? '').toLocaleLowerCase('tr').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i').replace(/[^a-z0-9.=&]+/g, ' ').trim();
+function lev(a, b) {   // harf ekleme/silme/değiştirme/yer değiştirme sayısı
+  const m = a.length, n = b.length; if (Math.abs(m - n) > 2) return 9;
+  const d = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]); for (let j = 1; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[m][n];
+}
+const qTokens = q => fold(q).split(' ').filter(Boolean);
+const near = (w, t) => { if (t.length < 4) return false; const tol = t.length >= 8 ? 2 : 1; return lev(w, t) <= tol || (w.length > t.length && lev(w.slice(0, t.length), t) <= tol); };
+function fuzzyHit(hay, toks) { const words = hay.split(' '); return toks.every(t => hay.includes(t) || words.some(w => near(w, t))); }
+const hayCache = new WeakMap();
+const itemHay = x => { let h = hayCache.get(x); if (!h) { h = fold([x.ticker, x.name, secName(x.sector), L(x.headline), x.headline?.en].join(' ')); hayCache.set(x, h); } return h; };
+
+// Takip edilen bütün şirket/fonlar (aramada "Şirketler ve fonlar" satırı için, ilk aramada yüklenir)
+let uni = null, uniLoading = null;
+const loadUni = () => uni ? Promise.resolve(uni) : (uniLoading ||= fetch('data/universe.json', { cache: 'no-cache' }).then(r => r.json())
+  .then(d => uni = d.companies.map(c => ({ ...c, _t: fold(c.ticker), _n: fold(c.name), _s: fold((SECTOR_NAMES[c.sector] || []).join(' ')) }))).catch(() => uni = []));
+function companyMatches(q) {
+  if (!uni) return [];
+  const toks = qTokens(q), qq = toks.join(' '); if (!qq) return [];
+  const out = [];
+  for (const c of uni) {
+    const nameWords = c._n.split(' ');
+    let sc = c._t === qq ? 100 : c._t.startsWith(qq) ? 80 : 0;
+    if (!sc && toks.every(t => nameWords.some(w => w.startsWith(t)))) sc = 60;
+    if (!sc && (c._n + ' ' + c._t).includes(qq)) sc = 50;
+    if (!sc && toks.every(t => c._s.split(' ').some(w => w.startsWith(t)))) sc = 40 + (c.type === 'fund' ? 2 : 0);   // sektör adı: "altın", "enerji"…
+    if (!sc && toks.every(t => nameWords.some(w => near(w, t)) || near(c._t, t))) sc = 30;
+    if (sc) out.push([sc, c]);
+  }
+  return out.sort((a, b) => b[0] - a[0] || a[1].ticker.length - b[1].ticker.length).slice(0, 8).map(x => x[1]);
+}
+
+let potOpen = null, coOpen = null;
+// Haberi olmayan şirket/fon sayfası: grafik, istatistik, hesaplayıcı ve varsa son haberler
+function openCompany(tk) {
+  if (potential.some(p => p.ticker === tk)) return openPotential(tk);
+  const c = (uni || []).find(x => x.ticker === tk) || items.find(x => x.ticker === tk); if (!c) return;
+  const t = T(), related = items.filter(x => x.ticker === tk).slice(0, 8);
+  coOpen = tk; potOpen = null;
+  detailItem = { ticker: tk, date: related[0]?.date || null };
+  $('#sheetBody').innerHTML = `
+    <div class="grab"></div>
+    <div class="d-head">${avatar(c)}<div class="who"><b>${esc(tk)}</b><span>${esc(c.name)} · ${esc(t[c.market] || c.market || '')}${c.index ? ' · ' + esc(c.index === 'Takip listesi' ? t.tracked : c.index) : ''}</span></div>
+      <button class="icon-btn" id="closeSheet" aria-label="${esc(t.close)}"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="meta" style="margin-top:12px"><span class="pill">${esc(secName(c.sector))}</span><span class="pill ghost">${(c.type || 'stock') === 'fund' ? esc(t.fund) : esc(t.stock)}</span></div>
+    <div class="panel chart" id="cx" style="margin-top:12px"><div class="cx-loading"></div></div>
+    <div id="cxStats"></div>
+    <div id="calc"></div>
+    ${related.length ? `<h4 class="src-h">${esc(t.coNews)}</h4><div class="rel">${related.map(card).join('')}</div>` : `<p class="muted" style="margin-top:14px">${esc(t.coNoNews)}</p>`}`;
+  const d = $('#sheet'); if (!d.open) d.showModal(); $('#sheetBody').scrollTop = 0;
+  mountChart(detailItem);
+}
+
 function openPotential(tk) {
   const r = potential.find(x => x.ticker === tk); if (!r) return;
-  potOpen = tk;
+  potOpen = tk; coOpen = null;
   const t = T(), note = potNotes[tk], pts = r.points[lang] || r.points.tr || [];
   const related = items.filter(x => x.ticker === tk).slice(0, 6);
   detailItem = { ticker: tk, date: r.lead_date };
@@ -166,7 +223,7 @@ function base(except) {
   return items.filter(x => (except === 'signal' || !F.signal || x.signal === F.signal)
     && (!F.market || x.market === F.market) && (!F.type || x.type === F.type) && (!F.category || x.category === F.category)
     && (!F.sector || x.sector === F.sector) && (!F.source || (F.source === 'ai' ? !x.auto : x.auto))
-    && (!F.q || (x.ticker + ' ' + x.name + ' ' + secName(x.sector) + ' ' + L(x.headline)).toLowerCase().includes(F.q)));
+    && (!F.q || fuzzyHit(itemHay(x), qTokens(F.q))));
 }
 
 function renderMood() {
@@ -226,8 +283,18 @@ function render() {
   const t = T();
   view = base();
   $('#upd').textContent = `${t.updated}: ${updated ? new Date(updated + 'T00:00:00').toLocaleDateString(lang, { day: 'numeric', month: 'long' }) : '—'}`;
-  if (!view.length) { $('#list').innerHTML = `<div class="empty"><b>${esc(t.empty)}</b><button class="btn" id="resetAll">${esc(t.clear)}</button></div>`; return; }
-  let html = `<div class="list-h"><h2>${esc(t.feed)}</h2><span class="muted">${esc(t.results(view.length))}</span></div>`, last = null;
+  let cos = '';
+  if (F.q) {
+    if (!uni) loadUni().then(() => { if (F.q) render(); });
+    const list = companyMatches(F.q);
+    if (list.length) cos = `<section class="cos"><div class="list-h"><h2>${esc(t.coTitle)}</h2><span class="muted">${list.length}</span></div><div class="co-list">${list.map(c => {
+      const h = (prices[c.ticker] || {}).history, last = h?.at(-1)?.[1], m = h && h.length > 1 ? Math.round((h.at(-1)[1] / h[0][1] - 1) * 1000) / 10 : null;
+      return `<button class="co" data-co="${esc(c.ticker)}">${avatar(c)}<span class="who"><b>${esc(c.ticker)}</b><span>${esc(c.name)}</span></span>
+        <span class="co-r">${m != null ? `<b class="${m >= 0 ? 'up' : 'dn'}">${pct(m)}</b><i>${esc(t.m1)}</i>` : `<i>${esc(secName(c.sector))}</i>`}</span></button>`;
+    }).join('')}</div></section>`;
+  }
+  if (!view.length) { $('#list').innerHTML = cos + `<div class="empty"><b>${esc(cos ? t.noNews : t.empty)}</b><button class="btn" id="resetAll">${esc(t.clear)}</button></div>`; return; }
+  let html = cos + `<div class="list-h"><h2>${esc(t.feed)}</h2><span class="muted">${esc(t.results(view.length))}</span></div>`, last = null;
   for (const x of view.slice(0, shown)) {
     const d = dayLabel(x.date);
     if (d !== last) { html += `<div class="day">${esc(d)}</div>`; last = d; }
@@ -412,7 +479,7 @@ function sendFeedback() {
   window.open(url, '_blank', 'noopener');
 }
 function openDetail(id) {
-  potOpen = null;
+  potOpen = null; coOpen = null;
   detailItem = items.find(x => itemKey(x) === id); if (!detailItem) return;
   renderDetail(); mountChart(detailItem);
   const d = $('#sheet'); if (!d.open) d.showModal(); d.scrollTop = 0; $('#sheetBody').scrollTop = 0;
@@ -441,6 +508,7 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-k]');
   if (b && !b.closest('#fsheet')) { setF(b.dataset.k, b.dataset.v); return; }
   const pc = e.target.closest('.pcard'); if (pc) { openPotential(pc.dataset.pot); return; }
+  const co = e.target.closest('[data-co]'); if (co) { openCompany(co.dataset.co); return; }
   const c = e.target.closest('.card, .fcard');
   if (c) { openDetail(c.dataset.id); return; }
   if (e.target.closest('#more')) { shown += PAGE; render(); return; }
@@ -453,9 +521,10 @@ document.addEventListener('keydown', e => {
 $('#lang').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   lang = b.dataset.v; store.set('lang', lang); applyLang();
-  if ($('#sheet').open) { if (potOpen) openPotential(potOpen); else { renderDetail(); mountChart(detailItem); } }
+  if ($('#sheet').open) { if (potOpen) openPotential(potOpen); else if (coOpen) openCompany(coOpen); else { renderDetail(); mountChart(detailItem); } }
 });
 let qt;
+$('#q').addEventListener('focus', () => loadUni(), { once: true });
 $('#q').addEventListener('input', e => {
   $('#qx').hidden = !e.target.value;
   clearTimeout(qt); qt = setTimeout(() => { F.q = e.target.value.trim().toLowerCase(); shown = PAGE; renderMood(); renderFeatured(); render(); }, 150);

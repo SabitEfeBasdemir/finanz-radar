@@ -409,3 +409,14 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .theme-light .rb-title { background: linear-gradient(90deg, #2563eb, #7c3aed); -webkit-background-clip: text; background-clip: text }
 .theme-light .seg button.on, .theme-light .opt.on { color: #fff }
 .theme-light .c-field input[type=date] { color-scheme: light }
+
+/* Arama: şirketler ve fonlar */
+.cos { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px }
+.co-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px }
+.co { display: flex; align-items: center; gap: 10px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; cursor: pointer; min-width: 0 }
+.co:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)) }
+.co:active { transform: scale(.98) }
+.co .av { width: 34px; height: 34px; font-size: 12px }
+.co .who { flex: 1; min-width: 0 }
+.co-r { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; flex-shrink: 0 }
+.co-r i { font-style: normal; color: var(--mut); font-size: 11px }
