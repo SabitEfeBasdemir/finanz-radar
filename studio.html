@@ -1,0 +1,204 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Tasarım Stüdyosu · Yatırım Radarı</title>
+<link rel="icon" href="icons/icon.svg">
+<style>
+  :root { --bg: #0d1117; --panel: #161b22; --panel2: #1f2630; --line: #2a3340; --tx: #e6edf3; --mut: #8b97a6; --acc: #3b82f6; --ok: #22c55e }
+  * { box-sizing: border-box }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--tx); font: 14px/1.45 -apple-system, BlinkMacSystemFont, system-ui, sans-serif }
+  button, input, select { font: inherit; color: inherit }
+  .top { height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--panel) }
+  .top h1 { font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px; white-space: nowrap }
+  .top h1 img { width: 26px; height: 26px; border-radius: 7px }
+  .top .sp { flex: 1 }
+  .seg { display: inline-flex; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px }
+  .seg button { border: 0; background: none; color: var(--mut); padding: 5px 12px; border-radius: 7px; font-weight: 600; font-size: 13px; cursor: pointer }
+  .seg button.on { background: var(--acc); color: #fff }
+  .btn { border: 1px solid var(--line); background: var(--panel2); border-radius: 10px; padding: 8px 14px; font-weight: 700; cursor: pointer; white-space: nowrap }
+  .btn.primary { background: var(--acc); border-color: var(--acc); color: #fff }
+  .btn:active { transform: scale(.97) }
+  .wrap { display: grid; grid-template-columns: 360px 1fr; height: calc(100% - 56px) }
+  .side { overflow-y: auto; border-right: 1px solid var(--line); background: var(--panel); padding: 8px 16px 40px }
+  .stage { overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 20px; background:
+    radial-gradient(circle at 1px 1px, #ffffff10 1px, transparent 0) 0 0 / 18px 18px }
+  .frame { background: #000; border-radius: 26px; padding: 10px; box-shadow: 0 20px 60px #0008; transition: width .2s }
+  .frame iframe { display: block; border: 0; width: 100%; height: calc(100vh - 56px - 60px); border-radius: 18px; background: #0f1419 }
+  .frame.desk { padding: 0; border-radius: 12px } .frame.desk iframe { border-radius: 12px }
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--mut); margin: 22px 0 10px }
+  .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+  .preset { border: 1px solid var(--line); background: var(--panel2); border-radius: 12px; padding: 8px 10px; cursor: pointer; text-align: left }
+  .preset.on { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc) inset }
+  .preset .sw { display: flex; gap: 3px; margin-bottom: 6px } .preset .sw i { flex: 1; height: 18px; border-radius: 4px; border: 1px solid #ffffff14 }
+  .preset b { font-size: 13px }
+  .colors { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+  .color { display: flex; align-items: center; gap: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; min-width: 0 }
+  .color input[type=color] { width: 30px; height: 30px; border: 0; padding: 0; background: none; border-radius: 6px; cursor: pointer; flex-shrink: 0 }
+  .color span { font-size: 12.5px; line-height: 1.2; min-width: 0 } .color small { display: block; color: var(--mut); font-family: ui-monospace, Menlo, monospace; font-size: 11px }
+  .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; margin-bottom: 12px }
+  .row label { font-weight: 600 } .row output { color: var(--mut); font-variant-numeric: tabular-nums; font-size: 12.5px }
+  .row input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--acc) }
+  select { width: 100%; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px }
+  .secs { display: flex; flex-direction: column; gap: 6px; padding: 0; margin: 0; list-style: none }
+  .secs li { display: flex; align-items: center; gap: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; cursor: grab; user-select: none }
+  .secs li.drag { opacity: .4 } .secs li.over { border-color: var(--acc) }
+  .secs li .grip { color: var(--mut); letter-spacing: -2px } .secs li .nm { flex: 1; font-weight: 600 } .secs li.off .nm { color: var(--mut); text-decoration: line-through }
+  .secs li button { border: 0; background: none; color: var(--mut); cursor: pointer; padding: 2px 6px; border-radius: 6px; font-size: 14px } .secs li button:hover { background: #ffffff10; color: var(--tx) }
+  .hint { color: var(--mut); font-size: 12px; margin: 6px 0 0 }
+  .note { background: #3b82f61a; border: 1px solid #3b82f655; border-radius: 10px; padding: 8px 10px; font-size: 12.5px; margin-top: 12px }
+  dialog { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); color: var(--tx); max-width: 520px; width: calc(100% - 32px); padding: 20px }
+  dialog::backdrop { background: #000a }
+  dialog h3 { margin: 0 0 10px } dialog ol { padding-left: 20px; display: flex; flex-direction: column; gap: 8px } dialog kbd { background: var(--panel2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 12px }
+  dialog textarea { width: 100%; height: 120px; background: var(--panel2); color: var(--tx); border: 1px solid var(--line); border-radius: 10px; font: 12px ui-monospace, Menlo, monospace; padding: 8px }
+  .dlg-b { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ok); color: #04210f; font-weight: 700; padding: 8px 14px; border-radius: 10px; opacity: 0; transition: opacity .2s; pointer-events: none }
+  .toast.on { opacity: 1 }
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto }
+    .side { border-right: 0; border-bottom: 1px solid var(--line) }
+    .frame iframe { height: 80vh }
+    .top .hide-s { display: none }
+  }
+</style></head>
+<body>
+<header class="top">
+  <h1><img src="icons/icon-192.png" alt="">Tasarım Stüdyosu</h1>
+  <div class="seg" id="dev"><button data-w="390" class="on">Telefon</button><button data-w="820">Tablet</button><button data-w="0">Masaüstü</button></div>
+  <div class="sp"></div>
+  <button class="btn hide-s" id="reset">Sıfırla</button>
+  <button class="btn primary" id="save">Kaydet ve yayınla</button>
+</header>
+<div class="wrap">
+  <aside class="side">
+    <h2>Hazır temalar</h2>
+    <div class="presets" id="presets"></div>
+
+    <h2>Renkler</h2>
+    <div class="colors" id="colors"></div>
+    <p class="hint">Renge tıkla ve seç; önizleme anında değişir.</p>
+
+    <h2>Yazı</h2>
+    <div class="row"><label for="font">Yazı tipi</label><span></span><select id="font" style="grid-column:1/-1"></select></div>
+    <div class="row"><label for="size">Yazı boyutu</label><output id="size_o"></output><input type="range" id="size" min="13" max="19" step="0.5"></div>
+
+    <h2>Şekil ve boşluk</h2>
+    <div class="row"><label for="radius">Köşe yuvarlaklığı</label><output id="radius_o"></output><input type="range" id="radius" min="0" max="28" step="1"></div>
+    <div class="row"><label for="gap">Kartlar arası boşluk</label><output id="gap_o"></output><input type="range" id="gap" min="4" max="28" step="1"></div>
+    <div class="row"><label for="cardPad">Kart iç boşluğu</label><output id="cardPad_o"></output><input type="range" id="cardPad" min="8" max="26" step="1"></div>
+
+    <h2>Yerleşim</h2>
+    <div class="row"><label for="maxWidth">Sayfa genişliği</label><span></span>
+      <select id="maxWidth" style="grid-column:1/-1"><option value="0">Tam genişlik</option><option value="1600">En fazla 1600 px</option><option value="1400">En fazla 1400 px</option><option value="1200">En fazla 1200 px</option><option value="980">En fazla 980 px (dar)</option></select></div>
+    <div class="row"><label for="feedCol">Haber kartı genişliği (geniş ekran)</label><output id="feedCol_o"></output><input type="range" id="feedCol" min="260" max="560" step="10"></div>
+
+    <h2>Bölümler</h2>
+    <ul class="secs" id="secs"></ul>
+    <p class="hint">Sürükleyerek veya ↑ ↓ ile sırala, 👁 ile göster/gizle. Haber akışı her zaman görünür.</p>
+
+    <div class="note">Bu sayfa sadece senin için; sitede bağlantısı yok. Değişiklikler önce sadece burada görünür,
+      <b>Kaydet ve yayınla</b> deyince herkes için geçerli olur. Taslağın bu tarayıcıda otomatik saklanır.</div>
+  </aside>
+  <section class="stage"><div class="frame" id="frame" style="width:410px"><iframe id="pv" src="index.html?studio=1" title="Önizleme"></iframe></div></section>
+</div>
+
+<dialog id="dlg">
+  <h3>Tasarımı yayınla</h3>
+  <p>Tasarımın panoya kopyalandı. GitHub'da tasarım dosyası yeni sekmede açılıyor:</p>
+  <ol>
+    <li>Açılan sayfada metin alanına tıkla, <kbd>Cmd</kbd>+<kbd>A</kbd> ile hepsini seç.</li>
+    <li><kbd>Cmd</kbd>+<kbd>V</kbd> ile yapıştır.</li>
+    <li>Sağ üstteki yeşil <b>Commit changes…</b> butonuna, sonra tekrar <b>Commit changes</b>'a bas.</li>
+  </ol>
+  <p class="hint">Site 1–2 dakika içinde yeni tasarımla açılır. Kopyalama çalışmadıysa aşağıdaki metni elle kopyala:</p>
+  <textarea id="json" readonly></textarea>
+  <div class="dlg-b"><button class="btn" id="copy">Tekrar kopyala</button><button class="btn" id="openGh">GitHub'ı aç</button><button class="btn primary" id="close">Tamam</button></div>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script src="theme.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const REPO = 'SabitEfeBasdemir/finanz-radar';
+const EDIT_URL = `https://github.com/${REPO}/edit/main/data/theme.json`;
+const COLOR_LABELS = { bg: 'Sayfa zemini', card: 'Kart zemini', card2: 'Kart içi kutular', line: 'Çizgi / kenarlık', tx: 'Ana yazı',
+  mut: 'Soluk yazı', accent: 'Vurgu (butonlar, link)', up: 'Yükseliş', dn: 'Düşüş', wt: 'İzle' };
+const FONT_LABELS = { system: 'iPhone sistem yazısı', inter: 'Inter (modern)', manrope: 'Manrope (yuvarlak)', plex: 'IBM Plex Sans (kurumsal)', serif: 'Source Serif (gazete)', mono: 'JetBrains Mono (terminal)' };
+const SEC_LABELS = { pot: '🚀 Potansiyeli olan şirketler', search: '🔍 Arama ve filtreler', mood: '▲ Sinyal kutuları', sectors: '📊 Sektörler', radar: '✦ Radar Analizi', feed: '📰 Haber akışı' };
+const UNITS = { size: 'px', radius: 'px', gap: 'px', cardPad: 'px', feedCol: 'px' };
+let T, saved;
+
+const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1600); };
+function push() {
+  $('#pv').contentWindow?.postMessage({ type: 'radar-theme', theme: T }, location.origin);
+  try { localStorage.setItem('studio-draft', JSON.stringify(T)); } catch (e) {}
+}
+function renderAll() {
+  // hazır temalar
+  $('#presets').innerHTML = Object.entries(Theme.PRESETS).map(([k, p]) => `<button class="preset ${T.preset === k ? 'on' : ''}" data-p="${k}">
+    <div class="sw">${['bg', 'card', 'accent', 'up', 'dn'].map(c => `<i style="background:${p.colors[c]}"></i>`).join('')}</div><b>${p.name}</b></button>`).join('');
+  // renkler
+  $('#colors').innerHTML = Theme.COLORS.map(k => `<label class="color"><input type="color" data-c="${k}" value="${T.colors[k]}"><span>${COLOR_LABELS[k]}<small>${T.colors[k]}</small></span></label>`).join('');
+  // yazı tipi
+  $('#font').innerHTML = Object.keys(Theme.FONTS).map(k => `<option value="${k}" ${T.font === k ? 'selected' : ''}>${FONT_LABELS[k]}</option>`).join('');
+  for (const k of ['size', 'radius', 'gap', 'cardPad', 'feedCol']) { $('#' + k).value = T[k]; $('#' + k + '_o').textContent = T[k] + UNITS[k]; }
+  $('#maxWidth').value = String(T.maxWidth);
+  renderSecs();
+}
+function renderSecs() {
+  $('#secs').innerHTML = T.order.map((k, i) => `<li draggable="true" data-s="${k}" class="${T.hidden.includes(k) ? 'off' : ''}">
+    <span class="grip">⋮⋮</span><span class="nm">${SEC_LABELS[k]}</span>
+    <button data-mv="-1" title="Yukarı" ${i === 0 ? 'disabled' : ''}>↑</button><button data-mv="1" title="Aşağı" ${i === T.order.length - 1 ? 'disabled' : ''}>↓</button>
+    ${k === 'feed' ? '' : `<button data-eye title="Göster / gizle">${T.hidden.includes(k) ? '🙈' : '👁'}</button>`}</li>`).join('');
+}
+function set(patch) { T = Theme.norm({ ...T, ...patch }); push(); }
+
+// olaylar
+$('#presets').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; set({ preset: b.dataset.p, colors: { ...Theme.PRESETS[b.dataset.p].colors } }); renderAll(); });
+$('#colors').addEventListener('input', e => { const k = e.target.dataset.c; if (!k) return; set({ preset: 'custom', colors: { ...T.colors, [k]: e.target.value } });
+  e.target.nextElementSibling.querySelector('small').textContent = e.target.value; document.querySelectorAll('.preset').forEach(p => p.classList.remove('on')); });
+$('#font').addEventListener('change', e => set({ font: e.target.value }));
+for (const k of ['size', 'radius', 'gap', 'cardPad', 'feedCol']) $('#' + k).addEventListener('input', e => { set({ [k]: +e.target.value }); $('#' + k + '_o').textContent = e.target.value + UNITS[k]; });
+$('#maxWidth').addEventListener('change', e => set({ maxWidth: +e.target.value }));
+$('#secs').addEventListener('click', e => {
+  const li = e.target.closest('li'); if (!li) return; const k = li.dataset.s, o = [...T.order], i = o.indexOf(k);
+  const mv = e.target.closest('[data-mv]');
+  if (mv) { const j = i + +mv.dataset.mv; if (j < 0 || j >= o.length) return; [o[i], o[j]] = [o[j], o[i]]; set({ order: o }); renderSecs(); return; }
+  if (e.target.closest('[data-eye]')) { const h = T.hidden.includes(k) ? T.hidden.filter(x => x !== k) : [...T.hidden, k]; set({ hidden: h }); renderSecs(); }
+});
+// sürükle-bırak
+let dragK = null;
+$('#secs').addEventListener('dragstart', e => { const li = e.target.closest('li'); dragK = li?.dataset.s; li?.classList.add('drag'); });
+$('#secs').addEventListener('dragend', () => { dragK = null; document.querySelectorAll('.secs li').forEach(l => l.classList.remove('drag', 'over')); });
+$('#secs').addEventListener('dragover', e => { e.preventDefault(); document.querySelectorAll('.secs li').forEach(l => l.classList.toggle('over', l === e.target.closest('li'))); });
+$('#secs').addEventListener('drop', e => {
+  e.preventDefault(); const li = e.target.closest('li'); if (!li || !dragK || li.dataset.s === dragK) return;
+  const o = T.order.filter(x => x !== dragK); o.splice(o.indexOf(li.dataset.s) + (e.offsetY > li.offsetHeight / 2 ? 1 : 0), 0, dragK); set({ order: o }); renderSecs();
+});
+// cihaz önizlemesi
+$('#dev').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('#dev button').forEach(x => x.classList.toggle('on', x === b));
+  const w = +b.dataset.w, f = $('#frame'); f.classList.toggle('desk', !w); f.style.width = w ? (w + 20) + 'px' : '100%';
+});
+$('#pv').addEventListener('load', () => { push(); setTimeout(push, 400); setTimeout(push, 1500); });
+$('#reset').addEventListener('click', () => { if (!confirm('Yayındaki tasarıma geri dönülsün mü? (Kaydedilmemiş değişiklikler silinir)')) return; T = Theme.norm(saved); renderAll(); push(); toast('Yayındaki tasarım yüklendi'); });
+// kaydet: panoya kopyala + GitHub'da dosyayı aç
+const jsonText = () => JSON.stringify(Theme.norm(T), null, 1) + '\n';
+async function copy() { try { await navigator.clipboard.writeText(jsonText()); toast('Panoya kopyalandı'); return true; } catch (e) { return false; } }
+$('#save').addEventListener('click', async () => {
+  $('#json').value = jsonText(); await copy();
+  window.open(EDIT_URL, '_blank', 'noopener'); $('#dlg').showModal();
+});
+$('#copy').addEventListener('click', () => { copy(); $('#json').select(); });
+$('#openGh').addEventListener('click', () => window.open(EDIT_URL, '_blank', 'noopener'));
+$('#close').addEventListener('click', () => $('#dlg').close());
+
+// başlangıç: yayındaki tasarım; bu tarayıcıda taslak varsa o
+(async () => {
+  saved = await fetch('data/theme.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  let draft = null; try { draft = JSON.parse(localStorage.getItem('studio-draft') || 'null'); } catch (e) {}
+  T = Theme.norm(draft || saved);
+  renderAll(); push();
+  if (draft && JSON.stringify(Theme.norm(draft)) !== JSON.stringify(Theme.norm(saved))) toast('Kaydedilmemiş taslağın yüklendi');
+})();
+</script>
+</body></html>

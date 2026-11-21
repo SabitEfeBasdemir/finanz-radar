@@ -1,4 +1,10 @@
 const $ = s => document.querySelector(s);
+// Tasarım: kayıtlı temayı uygula; Tasarım Stüdyosu'nun önizlemesindeysek oradan gelen ayarları canlı uygula
+const IN_STUDIO = /[?&]studio=1/.test(location.search);   // Tasarım Stüdyosu önizlemesi: tema sadece stüdyodan gelir
+if (!IN_STUDIO) Theme.load();
+addEventListener('message', e => {
+  if (e.origin === location.origin && e.data && e.data.type === 'radar-theme') Theme.apply(e.data.theme);
+});
 const LANGS = ['tr', 'en'];
 const LI = { tr: 0, de: 1, en: 2 };
 const store = {

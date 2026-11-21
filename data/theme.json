@@ -1,0 +1,32 @@
+{
+ "version": 1,
+ "preset": "navy",
+ "colors": {
+  "bg": "#0f1419",
+  "card": "#18202a",
+  "card2": "#1e2834",
+  "line": "#263241",
+  "tx": "#e6edf3",
+  "mut": "#8b9bb0",
+  "accent": "#3b82f6",
+  "up": "#3ddc97",
+  "dn": "#ff6b6b",
+  "wt": "#f5c451"
+ },
+ "font": "system",
+ "size": 15,
+ "radius": 16,
+ "gap": 12,
+ "cardPad": 14,
+ "maxWidth": 0,
+ "feedCol": 340,
+ "order": [
+  "pot",
+  "search",
+  "mood",
+  "sectors",
+  "radar",
+  "feed"
+ ],
+ "hidden": []
+}

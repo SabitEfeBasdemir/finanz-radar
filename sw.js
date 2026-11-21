@@ -1,8 +1,8 @@
 // Önce ağ, çevrimdışıysa önbellek. Böylece hem uygulama hem veri güncellemeleri hemen görünür.
 // Ağdan alırken tarayıcının kendi önbelleğini de yeniden doğrular ("no-cache"): GitHub Pages dosyaları
 // 10 dakika saklanabilir diye işaretliyor; bu sayede eski kopya gösterilmez.
-const C = 'radar-v16';
-const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'i18n.js', 'chart.js', 'manifest.json'];
+const C = 'radar-v17';
+const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'i18n.js', 'chart.js', 'theme.js', 'manifest.json'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))));
   self.skipWaiting();

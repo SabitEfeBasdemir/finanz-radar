@@ -1,8 +1,9 @@
 # Yatırım Radarı
 
 Static PWA (index.html, i18n.js, app.js, style.css, sw.js) served by GitHub Pages from the repo root.
-UI languages: Turkish and English (`i18n.js`; German strings remain in the file but are not offered). Visitors can only change the language; the design is fixed in the
-"TASARIM AYARLARI" block at the top of `style.css` (do not add user-facing theme settings).
+UI languages: Turkish and English (`i18n.js`; German strings remain in the file but are not offered). Visitors can only change the language. The design (colors, font, sizes, section order/visibility) is set by the
+owner in the Design Studio (`studio.html`, not linked from the site) and stored in `data/theme.json`, applied by `theme.js`;
+the "TASARIM AYARLARI" block in `style.css` holds the defaults. Do not add user-facing theme settings.
 
 ## Data
 
