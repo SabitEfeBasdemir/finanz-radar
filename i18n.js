@@ -230,6 +230,8 @@ Object.assign(I18N.en, { radarShort: 'Radar', weekly: 'Weekly · Claude', analys
   calcLine2: (amt, d) => `If you had invested ${amt} on ${d}, today it would be worth:`, calcAmtL: 'Amount', calcFrom: 'Start date', calcAnn: 'Annualised', calcProfit: 'Gain', calcLoss: 'Loss',
   calcStock: 'Share/fund price', calcFx: 'Currency effect (€)', calcShort: 'Not enough price history for this period.',
   calcNote: 'In euros, using the actual exchange rate on both dates. Excludes dividends, taxes and fees. Past returns do not predict the future.' });
+Object.assign(I18N.tr, { conv: 'İkna derecesi', convL: { high: 'Yüksek', medium: 'Orta', low: 'Düşük' } });
+Object.assign(I18N.en, { conv: 'Conviction', convL: { high: 'High', medium: 'Medium', low: 'Low' } });
 Object.assign(I18N.en, { full: 'Full screen', exitFull: 'Exit full screen',
   a2hs: 'For full screen: tap the Share button in Safari, then “Add to Home Screen”. It opens like an app, without browser bars.' });
 Object.assign(I18N.en, {

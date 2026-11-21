@@ -67,6 +67,9 @@ function spark(tk, n = 30) {
   const pts = v.map((y, i) => `${(i * W / (v.length - 1)).toFixed(1)},${(H - 2 - (y - mn) / ((mx - mn) || 1) * (H - 4)).toFixed(1)}`).join(' ');
   return `<svg class="spark ${v.at(-1) >= v[0] ? 'up' : 'dn'}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts}"/></svg>`;
 }
+// İkna derecesi: 3 çubuklu gösterge
+const convTag = (c, withLabel = true) => !['high', 'medium', 'low'].includes(c) ? '' :
+  `<span class="conv c-${c}" title="${esc(T().conv)}"><i></i><i></i><i></i>${withLabel ? `${esc(T().conv)}: ` : ''}<b>${esc(T().convL[c])}</b></span>`;
 const sigTag = s => `<span class="sig s-${esc(s)}"><i>${SIG_ICON[s] || ''}</i>${esc(T().sig[s] || s)}</span>`;
 const moveTag = m => m == null ? '' : `<span class="mv ${m >= 0 ? 'up' : 'dn'}">${pct(m)}</span>`;
 
@@ -193,6 +196,7 @@ function renderFeatured() {
       <div class="fc-top">${avatar(x)}<div class="who"><b>${esc(x.ticker)}</b><span>${esc(x.name)}</span></div>${sigTag(x.signal)}</div>
       <h3>${esc(L(x.headline))}</h3>
       <p>${esc(L(x.tldr) || L(x.why))}</p>
+      ${convTag(x.conviction)}
       <div class="meta"><span class="pill">${esc(secName(x.sector))}</span>${x.since ? `<span class="pill ${x.since.pct >= 0 ? 'upbg' : 'dnbg'}">${esc(HIST[lang].since)} ${pct(x.since.pct)}</span>` : ''}<span>${esc(dayLabel(x.date))}</span></div>
     </article>`).join('');
 }
@@ -366,6 +370,7 @@ function renderDetail() {
     <h2 class="d-title">${esc(L(x.headline))}</h2>
     ${x.ai ? `<section class="radar-box"><div class="rb-head"><span class="rb-title"><svg class="ic"><use href="#i-spark"/></svg>${esc(t.featured)}</span><span class="rb-sub">${esc(t.analysedBy)} · ${esc(dayLabel(x.date))}</span></div>
       ${L(x.tldr) ? `<p class="d-tldr">${esc(L(x.tldr))}</p>` : ''}
+      ${x.conviction ? `<div class="conv-box"><div class="conv-top">${sigTag(x.signal)}${convTag(x.conviction)}</div>${L(x.conviction_why) ? `<p>${esc(L(x.conviction_why))}</p>` : ''}</div>` : ''}
       ${L(x.summary) ? `<p class="d-sum">${esc(L(x.summary))}</p>` : ''}
       ${analysis}</section>` : `${L(x.summary) ? `<p class="d-sum">${esc(L(x.summary))}</p>` : ''}`}
     <div class="panel chart" id="cx"><div class="cx-loading"></div></div>

@@ -383,3 +383,16 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .rb-title .ic { color: #93c5fd; fill: #93c5fd; stroke: none; width: 16px; height: 16px }
 .rb-sub { font-size: 12px; color: var(--mut) }
 .radar-box .panel:first-of-type { margin-top: 8px }
+
+/* İkna derecesi */
+.conv { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; color: var(--mut); font-weight: 600; white-space: nowrap }
+.conv i { width: 5px; height: 12px; border-radius: 2px; background: var(--line) }
+.conv i:nth-child(2) { height: 14px } .conv i:nth-child(3) { height: 16px; margin-right: 6px }
+.conv b { color: var(--tx) }
+.c-low i:nth-child(1) { background: #f5c451 }
+.c-medium i:nth-child(-n+2) { background: #60a5fa }
+.c-high i { background: #3ddc97 }
+.conv-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 0 0 10px }
+.conv-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px }
+.conv-box p { margin: 6px 0 0; font-size: 14px; overflow-wrap: anywhere }
+.fcard .conv { margin-top: -2px }

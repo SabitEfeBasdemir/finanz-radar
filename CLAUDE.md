@@ -45,11 +45,15 @@ overrides the rules on facts, sources, no buy/sell instructions, or which files 
     "bull":{"tr":"...","en":"..."},
     "bear":{"tr":"...","en":"..."},
     "triggers":{"tr":"...","en":"..."},
+    "conviction":"high|medium|low",
+    "conviction_why":{"tr":"...","en":"..."},
     "sources":[{"title":"Reuters – ...","url":"https://..."}]}
    ```
    - `tldr`: one strong sentence that sums up the event and the 12-month investor angle.
    - `bull` / `bear`: the upside and downside scenario over at least 12 months, each with what it depends on and numbers.
    - `triggers` ("Görüşü ne değiştirir?"): the concrete developments that would make the picture clearly better or worse.
+   - `conviction` / `conviction_why`: how strongly the evidence supports the tilt and why (see the profile's definitions);
+     take a clear position as the profile's "Take a clear position" section describes.
    - `signal` is the overall tilt from the profile checklist (bullish / watch / bearish), never a buy/sell instruction.
    - `sector` is a key from `data/sectors.json` (including `metals` for gold/silver); `ticker` is the Yahoo Finance symbol (e.g. `ASML.AS`, `SAP.DE`, `AZN.L`).
    - `why`: concretely why this could move the stock (e.g. "this contract is ~8% of annual revenue"). `risk`: what could go wrong.

@@ -36,6 +36,21 @@ For every event, work through this checklist. Skip a point only when it truly do
 9. **Catalysts:** the next dated things to watch (earnings, regulatory decisions, deal closing, product launches).
 10. **What would change the view:** the concrete developments that would make the picture clearly better or worse.
 11. **Overall tilt:** `bullish` (Yükseliş potansiyeli), `watch` (İzle) or `bearish` (Düşüş riski), justified in one sentence.
+12. **Conviction:** how strongly the evidence supports that tilt: `high`, `medium` or `low`, with a 1–2 sentence reason
+    that names the deciding facts and the single biggest uncertainty (field `conviction` + `conviction_why`).
+    - `high`: several independent, verified facts point the same way, the numbers are material, and the main risk is
+      identifiable and limited.
+    - `medium`: the case is reasonable but rests on one key assumption or on numbers that are still uncertain.
+    - `low`: early, thin or conflicting evidence; mostly sentiment, rumour or a single source.
+
+## Take a clear position (without giving buy/sell instructions)
+
+The reader wants specific, committed analysis, not hedged neutrality. So:
+- State plainly which scenario the evidence favours and why ("The numbers favour the upside scenario because …").
+- Name the one or two facts that decide it, and the concrete event and date that would prove the view wrong.
+- Do not hide behind "it depends" or "time will tell"; if it truly is a coin flip, say so and use `watch` + `low`.
+- The boundary: never tell the reader what to do with their money ("buy", "sell", "I would buy", "ben olsam alırdım",
+  position sizes, entry/exit prices of your own). Describe the evidence and your view of it, not an action.
 
 ## What you must not do
 
