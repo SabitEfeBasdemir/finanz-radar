@@ -1,23 +1,16 @@
 # Gün içinde birkaç kez ücretsiz otomatik güncelleme (Claude kullanmaz).
-# Saatler UTC; Almanya saati kışın +1, yazın +2.
-# Dakikalar bilerek tam saat/yarım saat değil: GitHub yoğun anlarda (:00, :30) zamanlanmış çalışmaları düşürebiliyor.
-#   04:47 UTC  -> 05:47  sabah özeti (gece ABD kapanışı + Asya)
-#   09:23 UTC  -> 10:23  Avrupa açılışından sonra
-#   12:17 UTC  -> 13:17  öğlen, ABD öncesi şirket açıklamaları (hafta sonu da)
-#   14:53 UTC  -> 15:53  ABD açılışından (15:30) sonra
-#   17:41 UTC  -> 18:41  akşam, Avrupa kapanışı
-#   21:19 UTC  -> 22:19  ABD kapanışı ve kapanış sonrası bilançolar
-# Hafta sonu sabah, öğlen ve akşam.
+#
+# ASIL TETİKLEYİCİ: cron-job.org (ücretsiz dış zamanlayıcı), Almanya saatiyle tam saatinde, her gün
+#   06:00, 10:00, 13:00, 16:00, 19:00, 23:00
+# GitHub API'ye "workflow_dispatch" isteği gönderir (yalnızca bu repoda Actions izni olan kısıtlı bir anahtarla).
+#
+# YEDEK: GitHub'ın kendi zamanlayıcısı (aşağıdaki "schedule", her tam saatten 40 dk sonra, UTC).
+# GitHub bunları çoğu zaman geç başlatır. Son otomatik güncelleme 100 dakikadan yeniyse yedek çalışma kendini
+# atlar; böylece cron-job.org çalışıyorsa çift tarama olmaz, bir gün çalışmazsa site yine güncellenir.
 name: Günlük güncelleme
 on:
   schedule:
-    - cron: "47 4 * * *"
-    - cron: "23 9 * * 1-5"
-    - cron: "17 12 * * *"
-    - cron: "53 14 * * 1-5"
-    - cron: "41 17 * * *"
-    - cron: "19 21 * * 1-5"
-    - cron: "57 12 15 11 *"  # tek seferlik test: 15 Kasım 13:57
+    - cron: "40 5,9,12,15,18,22 * * *"
   workflow_dispatch: {}
 permissions:
   contents: write
@@ -30,26 +23,45 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 30
+      - name: Yedek çalışma gerekli mi?
+        id: guard
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            last=$(git log -1 --format=%ct --author=radar-bot || echo 0)
+            age=$(( $(date +%s) - ${last:-0} ))
+            echo "son otomatik güncelleme $((age / 60)) dakika önce"
+            if [ "$age" -lt 6000 ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; echo "yakın zamanda güncellendi, atlanıyor"; fi
+          fi
       - uses: actions/setup-python@v5
+        if: steps.guard.outputs.skip != 'true'
         with:
           python-version: "3.12"
       - name: Şirket listesi (ayda bir)
+        if: steps.guard.outputs.skip != 'true'
         run: |
           if [ "$(date -u +%d)" = "01" ]; then
             pip install --quiet pandas lxml
             python scripts/build_universe.py
           fi
       - name: Sektör sıralaması
+        if: steps.guard.outputs.skip != 'true'
         run: python scripts/update_sectors.py
       - name: Haber taraması
+        if: steps.guard.outputs.skip != 'true'
         run: python scripts/fetch_news.py
       - name: Türkçe çeviri
+        if: steps.guard.outputs.skip != 'true'
         run: python scripts/translate_items.py
       - name: Fiyatlar
+        if: steps.guard.outputs.skip != 'true'
         run: python scripts/update_prices.py
       - name: Potansiyeli olan şirketler
+        if: steps.guard.outputs.skip != 'true'
         run: python scripts/potential.py
       - name: Kaydet ve yükle
+        if: steps.guard.outputs.skip != 'true'
         run: |
           for f in data/*.json; do python -m json.tool "$f" > /dev/null; done
           git config user.name "radar-bot"
