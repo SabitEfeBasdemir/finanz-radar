@@ -7,12 +7,44 @@
     hist:  hissenin son 2 yılında benzer büyüklükte ve aynı yönde günlük hareketler kaç kez oldu,
            sonraki 5 ve 20 işlem gününde fiyat kaç kez yükseldi, ortalama ne kadar değişti
     vol:   hissenin tipik (medyan) günlük hareketi, %
+Grafik için ek dosyalar:
+    data/i/<SEMBOL>.csv  gün içi: son 5 işlem günü, 15 dakikalık (her taramada) -> "Gün" ve "Hafta"
+    data/m/<SEMBOL>.csv  borsaya açılıştan bugüne aylık kapanışlar (günde bir kez) -> "Maks."
 Sadece standart kütüphane."""
 import datetime, json, pathlib, statistics, sys, time, urllib.parse, urllib.request
 
 root = pathlib.Path(__file__).resolve().parent.parent
 MIN_MOVE = 2.0      # bundan küçük hareketler için "benzer durum" aranmaz
 GAP = 5             # birbirine 5 işlem gününden yakın olaylar tek sayılır
+
+
+def spark(syms, rng, interval):
+    """Yahoo spark: 20'li gruplar halinde {sembol: [(unix_zaman, kapanış), ...]}"""
+    out = {}
+    for k in range(0, len(syms), 20):
+        part = syms[k:k + 20]
+        url = f"https://query1.finance.yahoo.com/v8/finance/spark?range={rng}&interval={interval}&symbols=" + urllib.parse.quote(",".join(part))
+        try:
+            d = json.load(urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=30))
+            for s, v in d.items():
+                h = [(t, c) for t, c in zip(v.get("timestamp") or [], v.get("close") or []) if c]
+                if len(h) > 2:
+                    out[s] = h
+        except Exception as e:
+            print("hata", rng, part[0], e, file=sys.stderr)
+        time.sleep(0.3)
+    return out
+
+
+def write_csv(folder, data, fmt, keep):
+    """Her sembol için tek dosya; artık kullanılmayan dosyaları siler."""
+    d = root / "data" / folder
+    d.mkdir(exist_ok=True)
+    for s, h in data.items():
+        (d / f"{s}.csv").write_text("t,c\n" + "".join(fmt(t, c) for t, c in h))
+    for f in d.glob("*.csv"):
+        if f.stem not in keep:
+            f.unlink()
 
 
 def fetch(syms):
@@ -97,6 +129,27 @@ def main():
     for f in pdir.glob("*.csv"):
         if f.stem not in data and f.stem not in syms:
             f.unlink()
+
+    # Gün içi (son 5 işlem günü, 15 dk) — her taramada
+    intra = spark(sorted(syms), "5d", "15m")
+    write_csv("i", intra, lambda t, c: f"{t},{round(c, 4)}\n", syms)
+    # Borsaya açılıştan bugüne (aylık) — günde bir kez, yeni semboller için hemen
+    stamp = root / "data/m/_gun.txt"
+    today = datetime.date.today().isoformat()
+    mdir = root / "data/m"
+    mdir.mkdir(exist_ok=True)
+    need = sorted(syms) if not stamp.exists() or stamp.read_text().strip() != today else \
+        sorted(s for s in syms if not (mdir / f"{s}.csv").exists())
+    if need:
+        mx = spark(need, "max", "1mo")
+        for s, h in mx.items():
+            (mdir / f"{s}.csv").write_text("t,c\n" + "".join(
+                f"{datetime.datetime.fromtimestamp(t, datetime.timezone.utc).date().isoformat()},{round(c, 4)}\n" for t, c in h))
+        stamp.write_text(today)
+    for f in mdir.glob("*.csv"):
+        if f.stem not in syms:
+            f.unlink()
+    print(f"gün içi {len(intra)} sembol, tarihsel {len(need)} sembol yenilendi")
 
     n = 0
     for it in ins["items"]:

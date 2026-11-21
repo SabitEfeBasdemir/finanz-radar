@@ -230,14 +230,14 @@ let detailItem = null, chartObj = null;
 async function mountChart(x) {
   const box = $('#cx'), st = $('#cxStats'); if (!box) return;
   chartObj?.destroy?.(); chartObj = null;
-  let s;
-  try { s = await Chart.load(x.ticker); } catch (e) {
-    const h = (prices[x.ticker] || {}).history; if (h) s = { d: h.map(r => r[0]), c: h.map(r => r[1]) };
+  let sets;
+  try { sets = await Chart.load(x.ticker); } catch (e) {
+    const h = (prices[x.ticker] || {}).history; if (h) sets = { daily: { d: h.map(r => r[0]), c: h.map(r => r[1]) } };
   }
   if (detailItem !== x || !document.body.contains(box)) return;
-  if (!s || s.c.length < 2) { box.innerHTML = `<div class="muted pad">${esc(T().noPrice)}</div>`; return; }
-  chartObj = Chart.mount(box, s, { lang, newsDate: x.date });
-  st.innerHTML = statTiles(s);
+  if (!sets || !sets.daily || sets.daily.c.length < 2) { box.innerHTML = `<div class="muted pad">${esc(T().noPrice)}</div>`; return; }
+  chartObj = Chart.mount(box, sets, { lang, newsDate: x.date });
+  st.innerHTML = statTiles(sets.daily);
 }
 function statTiles(series) {
   if (!series || series.c.length < 2) return '';
