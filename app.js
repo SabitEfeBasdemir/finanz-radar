@@ -83,7 +83,7 @@ function applyLang() {
   $('#q').placeholder = t.search; $('#ftxt').textContent = t.filters;
   $('#secTitle').textContent = t.sectorsTitle; $('#secSub').textContent = t.sectorsSub;
   $('#featTitle').textContent = t.featured; $('#featSub').textContent = t.featuredSub;
-  $('#foot').textContent = t.foot; fsUi(); a2hsUi(); $('#totop').setAttribute('aria-label', t.top);
+  $('#foot').textContent = t.foot; fsUi(); a2hsUi(); instUi(); $('#totop').setAttribute('aria-label', t.top);
   renderAll();
 }
 
@@ -391,6 +391,28 @@ function a2hsUi() {
 }
 $('#a2hsX').addEventListener('click', () => { store.set('a2hs', 'x'); $('#a2hs').hidden = true; });
 document.documentElement.classList.toggle('is-app', standalone);
+
+// ---------- Uygulamayı yükle (masaüstü / Android) ----------
+let installEvt = null;
+const macSafari = /Macintosh/.test(navigator.userAgent) && /Safari\//.test(navigator.userAgent) && !/Chrome|Chromium|Edg\//.test(navigator.userAgent) && navigator.maxTouchPoints < 2;
+function instUi() {
+  const b = $('#instBtn'); if (!b) return;
+  $('#instTxt').textContent = T().install;
+  b.hidden = standalone || !(installEvt || macSafari);
+}
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; instUi(); });
+addEventListener('appinstalled', () => { installEvt = null; $('#instBtn').hidden = true; });
+$('#instBtn').addEventListener('click', async () => {
+  if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice.catch(() => null); if (r?.outcome === 'accepted') $('#instBtn').hidden = true; installEvt = null; return; }
+  const t = T();
+  $('#isheetBody').innerHTML = `<div class="grab"></div>
+    <div class="d-head"><img src="icons/icon-192.png" width="40" height="40" alt="" style="border-radius:10px"><h2>${esc(t.installTitle)}</h2>
+      <button class="icon-btn" id="closeI" aria-label="${esc(t.close)}"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <ol class="steps">${t.installSafari.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+    <p class="h-note">${esc(t.installNote)}</p>`;
+  $('#isheet').showModal();
+});
+$('#isheet').addEventListener('click', e => { if (e.target === $('#isheet') || e.target.closest('#closeI')) $('#isheet').close(); });
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 load().catch(() => { $('#list').innerHTML = `<div class="empty"><b>${esc(T().empty)}</b></div>`; });

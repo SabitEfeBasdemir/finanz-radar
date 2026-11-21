@@ -203,6 +203,14 @@ Object.assign(I18N.tr, {
 });
 Object.assign(I18N.tr, { full: 'Tam ekran', exitFull: 'Tam ekrandan çık',
   a2hs: 'Tam ekran için: Safari\u2019de alttaki Paylaş butonuna, sonra “Ana Ekrana Ekle”ye dokun. Uygulama gibi, çubuklar olmadan açılır.' });
+Object.assign(I18N.tr, { install: 'Uygulamayı yükle', installTitle: 'Bilgisayara yükle',
+  installSafari: ['Safari menü çubuğunda “Dosya”ya tıkla.', '“Dock’a Ekle…” seçeneğini seç.', '“Ekle” de. Yatırım Radarı Dock’ta kendi simgesiyle, ayrı bir pencerede açılır.'],
+  installNote: 'Bu seçenek macOS Sonoma (14) ve sonrasında var. Chrome veya Edge kullanıyorsan adres çubuğundaki yükleme simgesine de tıklayabilirsin.',
+  installed: 'Yüklendi' });
+Object.assign(I18N.en, { install: 'Install app', installTitle: 'Install on your computer',
+  installSafari: ['In the Safari menu bar, click “File”.', 'Choose “Add to Dock…”.', 'Click “Add”. Investment Radar opens from the Dock in its own window.'],
+  installNote: 'This option exists on macOS Sonoma (14) and later. In Chrome or Edge you can also click the install icon in the address bar.',
+  installed: 'Installed' });
 Object.assign(I18N.en, { full: 'Full screen', exitFull: 'Exit full screen',
   a2hs: 'For full screen: tap the Share button in Safari, then “Add to Home Screen”. It opens like an app, without browser bars.' });
 Object.assign(I18N.en, {

@@ -327,3 +327,12 @@ h1, .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
   .sheet { max-width: 760px }
 }
 @media (min-width: 1400px) { .fcard, .pcard { flex-basis: 340px } }
+
+/* Uygulamayı yükle */
+.inst-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 10px; border: 0; background: var(--accent); color: #fff; font-weight: 700; font-size: 13px; white-space: nowrap }
+.inst-btn:active { transform: scale(.97) }
+@media (max-width: 480px) { .inst-btn span { display: none } .inst-btn { padding: 0 9px } }
+.steps { margin: 16px 0 8px; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 15px }
+.steps li::marker { color: var(--accent); font-weight: 700 }
+#isheet { max-width: 480px }
+@media (min-width: 720px) { #isheet { max-width: 480px } }
