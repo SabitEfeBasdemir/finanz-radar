@@ -42,11 +42,11 @@ async function load() {
   $('#list').innerHTML = Array.from({ length: 4 }, () => '<div class="card skel"><div></div><div></div><div></div></div>').join('');
   let pot, notes;
   const [i, p, s] = await Promise.all([
-    fetch('data/insights.json').then(r => r.json()),
-    fetch('data/prices.json').then(r => r.json()).catch(() => ({ tickers: {} })),
-    fetch('data/sectors.json').then(r => r.json()).catch(() => ({ sectors: [] })),
-    fetch('data/potential.json').then(r => r.json()).catch(() => ({ companies: [] })),
-    fetch('data/potential_notes.json').then(r => r.json()).catch(() => ({ notes: {} })),
+    fetch('data/insights.json', { cache: 'no-cache' }).then(r => r.json()),
+    fetch('data/prices.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ tickers: {} })),
+    fetch('data/sectors.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ sectors: [] })),
+    fetch('data/potential.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ companies: [] })),
+    fetch('data/potential_notes.json', { cache: 'no-cache' }).then(r => r.json()).catch(() => ({ notes: {} })),
   ]).then(r => { [, , , pot, notes] = r; return r; });
   items = (i.items || []).sort((a, b) => (b.date || '').localeCompare(a.date || '') || (!!b.ai - !!a.ai) || Math.abs(b.move || 0) - Math.abs(a.move || 0));
   prices = p.tickers || {}; sectors = s.sectors || []; updated = i.updated || '';
@@ -533,5 +533,23 @@ $('#instBtn').addEventListener('click', async () => {
 });
 $('#isheet').addEventListener('click', e => { if (e.target === $('#isheet') || e.target.closest('#closeI')) $('#isheet').close(); });
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+// Yeni sürüm otomatik: uygulama açılınca ve tekrar öne gelince güncelleme kontrol edilir;
+// yeni sürüm devreye girince sayfa bir kez kendiliğinden yenilenir.
+if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    const check = () => reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+    setInterval(check, 30 * 60 * 1000);
+  });
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && !reloaded) { reloaded = true; location.reload(); }
+  });
+}
+// Veriler de öne gelince tazelensin (6 saatte bir değil, uygulama her açıldığında)
+let lastLoad = Date.now();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Date.now() - lastLoad > 10 * 60 * 1000) { lastLoad = Date.now(); load().catch(() => {}); }
+});
 load().catch(() => { $('#list').innerHTML = `<div class="empty"><b>${esc(T().empty)}</b></div>`; });

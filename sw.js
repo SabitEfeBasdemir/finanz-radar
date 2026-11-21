@@ -1,7 +1,10 @@
 // Önce ağ, çevrimdışıysa önbellek. Böylece hem uygulama hem veri güncellemeleri hemen görünür.
-const C = 'radar-v15';
+// Ağdan alırken tarayıcının kendi önbelleğini de yeniden doğrular ("no-cache"): GitHub Pages dosyaları
+// 10 dakika saklanabilir diye işaretliyor; bu sayede eski kopya gösterilmez.
+const C = 'radar-v16';
+const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'i18n.js', 'chart.js', 'manifest.json'];
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(C).then(c => c.addAll(['./', 'index.html', 'style.css', 'app.js', 'i18n.js', 'chart.js', 'manifest.json'])));
+  e.waitUntil(caches.open(C).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))));
   self.skipWaiting();
 });
 self.addEventListener('activate', e => {
@@ -9,9 +12,11 @@ self.addEventListener('activate', e => {
 });
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(fetch(e.request).then(r => {
-    const k = r.clone();
-    caches.open(C).then(c => c.put(e.request, k));
+  const url = new URL(e.request.url);
+  const same = url.origin === self.location.origin;
+  const req = same ? new Request(e.request, { cache: 'no-cache' }) : e.request;
+  e.respondWith(fetch(req).then(r => {
+    if (same && r.ok) { const k = r.clone(); caches.open(C).then(c => c.put(e.request, k)); }
     return r;
   }).catch(() => caches.match(e.request)));
 });
