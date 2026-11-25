@@ -3,25 +3,6 @@
  "basis": "ABD + Avrupa sektör fonlarının 3 aylık ortalama getirisi",
  "sectors": [
   {
-   "key": "staples",
-   "name": "Temel tüketim",
-   "etf_us": "XLP",
-   "etf_eu": "EXH3.DE",
-   "us": {
-    "m1": 4.5,
-    "m3": 6.5,
-    "y1": 17.7
-   },
-   "eu": {
-    "m1": 1.8,
-    "m3": 7.3,
-    "y1": 11.5
-   },
-   "score": 6.9,
-   "rank": 1,
-   "active": true
-  },
-  {
    "key": "health",
    "name": "Sağlık",
    "etf_us": "XLV",
@@ -32,11 +13,30 @@
     "y1": 16.3
    },
    "eu": {
-    "m1": 4.3,
-    "m3": 7.2,
-    "y1": 11.6
+    "m1": 6.8,
+    "m3": 11.5,
+    "y1": 13.6
    },
-   "score": 6.8,
+   "score": 8.9,
+   "rank": 1,
+   "active": true
+  },
+  {
+   "key": "staples",
+   "name": "Temel tüketim",
+   "etf_us": "XLP",
+   "etf_eu": "EXH3.DE",
+   "us": {
+    "m1": 4.5,
+    "m3": 6.5,
+    "y1": 17.7
+   },
+   "eu": {
+    "m1": 4.6,
+    "m3": 10.8,
+    "y1": 13.8
+   },
+   "score": 8.7,
    "rank": 2,
    "active": true
   },
@@ -51,11 +51,11 @@
     "y1": -2.3
    },
    "eu": {
-    "m1": 2.6,
-    "m3": 3.3,
-    "y1": 17.9
+    "m1": 2.7,
+    "m3": 5.1,
+    "y1": 18.4
    },
-   "score": 1.5,
+   "score": 2.4,
    "rank": 3,
    "active": true
   },
@@ -70,31 +70,12 @@
     "y1": 36.4
    },
    "eu": {
-    "m1": -9.1,
-    "m3": -0.6,
-    "y1": 33.6
+    "m1": -9.9,
+    "m3": -0.8,
+    "y1": 32.1
    },
-   "score": -1.9,
+   "score": -2.0,
    "rank": 4,
-   "active": true
-  },
-  {
-   "key": "discretionary",
-   "name": "Tüketici (otomotiv, perakende)",
-   "etf_us": "XLY",
-   "etf_eu": "EXV5.DE",
-   "us": {
-    "m1": 3.0,
-    "m3": 0.5,
-    "y1": 0.9
-   },
-   "eu": {
-    "m1": -1.5,
-    "m3": -8.5,
-    "y1": -19.3
-   },
-   "score": -4.0,
-   "rank": 5,
    "active": true
   },
   {
@@ -108,31 +89,31 @@
     "y1": 5.3
    },
    "eu": {
-    "m1": 1.8,
-    "m3": -5.2,
-    "y1": -1.0
+    "m1": 3.2,
+    "m3": -3.3,
+    "y1": 0.3
    },
-   "score": -4.4,
-   "rank": 6,
+   "score": -3.5,
+   "rank": 5,
    "active": true
   },
   {
-   "key": "finance",
-   "name": "Finans",
-   "etf_us": "XLF",
-   "etf_eu": "EXV1.DE",
+   "key": "discretionary",
+   "name": "Tüketici (otomotiv, perakende)",
+   "etf_us": "XLY",
+   "etf_eu": "EXV5.DE",
    "us": {
-    "m1": 0.2,
-    "m3": -3.7,
-    "y1": 6.8
+    "m1": 3.0,
+    "m3": 0.5,
+    "y1": 0.9
    },
    "eu": {
-    "m1": 1.7,
-    "m3": -10.2,
-    "y1": 22.2
+    "m1": -1.1,
+    "m3": -7.9,
+    "y1": -18.9
    },
-   "score": -6.9,
-   "rank": 7,
+   "score": -3.7,
+   "rank": 6,
    "active": true
   },
   {
@@ -146,11 +127,30 @@
     "y1": -8.6
    },
    "eu": {
-    "m1": -0.5,
-    "m3": -7.1,
-    "y1": 9.2
+    "m1": -0.1,
+    "m3": -5.7,
+    "y1": 8.4
    },
-   "score": -7.2,
+   "score": -6.5,
+   "rank": 7,
+   "active": true
+  },
+  {
+   "key": "finance",
+   "name": "Finans",
+   "etf_us": "XLF",
+   "etf_eu": "EXV1.DE",
+   "us": {
+    "m1": 0.2,
+    "m3": -3.7,
+    "y1": 6.8
+   },
+   "eu": {
+    "m1": -1.3,
+    "m3": -10.2,
+    "y1": 18.1
+   },
+   "score": -6.9,
    "rank": 8,
    "active": true
   },
@@ -165,11 +165,11 @@
     "y1": 6.4
    },
    "eu": {
-    "m1": 1.3,
-    "m3": -9.1,
-    "y1": 10.0
+    "m1": -1.5,
+    "m3": -10.0,
+    "y1": 7.7
    },
-   "score": -9.8,
+   "score": -10.2,
    "rank": 9,
    "active": true
   },
@@ -184,11 +184,11 @@
     "y1": 12.0
    },
    "eu": {
-    "m1": -6.5,
-    "m3": -6.7,
-    "y1": 16.9
+    "m1": -10.2,
+    "m3": -11.3,
+    "y1": 13.1
    },
-   "score": -10.4,
+   "score": -12.7,
    "rank": 10,
    "active": true
   },
@@ -203,11 +203,11 @@
     "y1": 14.3
    },
    "eu": {
-    "m1": -8.3,
-    "m3": -21.9,
-    "y1": 17.5
+    "m1": -12.6,
+    "m3": -25.0,
+    "y1": 11.1
    },
-   "score": -14.2,
+   "score": -15.8,
    "rank": 11,
    "active": false
   },
@@ -222,11 +222,11 @@
     "y1": -14.4
    },
    "eu": {
-    "m1": -5.6,
-    "m3": -14.6,
-    "y1": -5.2
+    "m1": -10.1,
+    "m3": -18.1,
+    "y1": -9.7
    },
-   "score": -18.7,
+   "score": -20.5,
    "rank": 12,
    "active": true
   }
